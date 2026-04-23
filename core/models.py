@@ -32,11 +32,11 @@ class Worker(models.Model):
     ('supervisor', 'Supervisor'),
     ('store_keeper', 'Store Keeper'),
     ('manager', 'Farm Mamager'),
-    ('director'. 'Director'),
+    ('director','Director'),
     ]
 
     full_name = models.CharField(max_length=100)
-    role = models.CharFiels(max_length=50, choices = ROLE_CHOICES)
+    role = models.CharField(max_length=50, choices = ROLE_CHOICES)
     phone = models.CharField()
     date_joined = models.DateField()
     is_active = models.BooleanField(default=True)
@@ -47,7 +47,7 @@ class Worker(models.Model):
 
 # PenWorkerAssignment Model
 class PenWorkerAssignment(models.Model):
-    pens = models.ForeignKey(
+    pen = models.ForeignKey(
         Pen,
         on_delete=models.PROTECT,
         related_name='worker_assignments'
