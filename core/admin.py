@@ -41,12 +41,16 @@ from .models import (
 )
 
 
+
 # Register your models here.
 admin.site.register(FarmUnit)
 admin.site.register(Pen)
 admin.site.register(Worker)
 admin.site.register(PenWorkerAssignment)
-admin.site.register(Flock)
+@admin.register(Flock)
+class FlockAdmin(admin.ModelAdmin):
+    list_display = ['pen', 'bird_type', 'initial_count', 'current_count', 'date_placed', 'is_active']
+    readonly_fields = ['current_count']
 admin.site.register(Supplier)
 admin.site.register(FlockPlacement)
 admin.site.register(FeedType)
