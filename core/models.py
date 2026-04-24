@@ -406,3 +406,949 @@ class FeedStockMovement(models.Model):
 
     def __str__(self):
         return f"{self.get_movement_type_display()} - {self.quantity} bags of {self.feed_stock.feed_type} on {self.recorded_at.date()}"
+
+
+# FeedIssuance Model
+class FeedIssuance(models.Model):
+    pen = models.ForeignKey(
+        Pen,
+        on_delete=models.PROTECT,
+        related_name='feed_issuances'
+    )
+    flock = models.ForeignKey(
+        Flock,
+        on_delete=models.PROTECT,
+        related_name='feed_issuances'
+    )
+    issuance_date = models.DateField()
+    issued_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='feed_issuances_made'
+    )
+    received_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='feed_issuances_received'
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Issuance to {self.pen.name} on {self.issuance_date}"
+
+
+
+#FeedIssuanceItem
+class FeedIssuanceItem(models.Model):
+    issuance = models.ForeignKey(
+        FeedIssuance,
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+    feed_type = models.ForeignKey(
+        FeedType,
+        on_delete=models.PROTECT,
+        related_name='issuance_items'
+    )
+    bags_issued = models.PositiveIntegerField()
+
+    def str(self):
+        return f"{self.feed_type} - {self.bags_issued} bags"
+
+
+
+# PenFeedingActivity Model
+class PenFeedingActivity(models.Model):
+    LEFTOVER_ACTION_CHOICES = [
+        ('added_on_top', 'Added on Top'),
+        ('removed_first', 'Removed First'),
+        ('reduced_ration', 'Reduced Ration'),
+        ('nothing_done', 'Nothing Done'),
+    ]
+
+    issuance = models.ForeignKey(
+        FeedIssuance,
+        on_delete=models.PROTECT,
+        related_name='feeding_activities'
+    )
+    flock = models.ForeignKey(
+        Flock,
+        on_delete=models.PROTECT,
+        related_name='feeding_activities'
+    )
+    feeding_date = models.DateField()
+    leftover_observed = models.BooleanField(default=False)
+    leftover_action = models.CharField(
+        max_length=20,
+        choices=LEFTOVER_ACTION_CHOICES,
+        blank=True
+    )
+    fed_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='feeding_activities'
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Feeding - {self.flock} on {self.feeding_date}"
+
+
+
+# PenFeedingActivityItem Model
+class PenFeedingActivityItem(models.Model):
+    feeding_activity = models.ForeignKey(
+        PenFeedingActivity,
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+    feed_type = models.ForeignKey(
+        FeedType,
+        on_delete=models.PROTECT,
+        related_name='feeding_activity_items'
+    )
+    bags_used = models.PositiveIntegerField()
+    empty_bags_returned = models.PositiveIntegerField(default=0)
+    bags_discrepancy = models.IntegerField(
+        default=0,
+        editable=False,
+        help_text="Computed: bags_used minus empty_bags_returned — set automatically"
+    )
+
+    def __str__(self):
+        return f"{self.feed_type} - {self.bags_used} bags used"
+
+
+
+# PenFeedingSupervisor Model
+class PenFeedingSupervision(models.Model):
+    TROUGH_CONDITION_CHOICES = [
+        ('good', 'Good'),
+        ('damaged', 'Damaged'),
+        ('needs_attention', 'Needs Attention'),
+    ]
+
+    BIRD_BEHAVIOR_CHOICES = [
+        ('normal', 'Normal'),
+        ('not_eating', 'Not Eating'),
+        ('lethargic', 'Lethargic'),
+        ('aggressive', 'Aggressive'),
+        ('other', 'Other'),
+    ]
+
+    CONFIRMATION_STATUS_CHOICES = [
+        ('confirmed', 'Confirmed'),
+        ('flagged', 'Flagged'),
+        ('rejected', 'Rejected'),
+    ]
+
+    feeding_activity = models.OneToOneField(
+        PenFeedingActivity,
+        on_delete=models.PROTECT,
+        related_name='supervision'
+    )
+    distribution_even = models.BooleanField(default=False)
+    trough_condition = models.CharField(max_length=20, choices=TROUGH_CONDITION_CHOICES)
+    bird_behavior = models.CharField(max_length=20, choices=BIRD_BEHAVIOR_CHOICES)
+    confirmation_status = models.CharField(
+        max_length=20,
+        choices=CONFIRMATION_STATUS_CHOICES,
+        default='confirmed'
+    )
+    supervised_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='feeding_supervisions'
+    )
+    supervised_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Supervision - {self.feeding_activity} ({self.get_confirmation_status_display()})"
+
+
+# DrugStock Model
+class DrugStock(models.Model):
+    drug = models.OneToOneField(
+        DrugAndSupplement,
+        on_delete=models.PROTECT,
+        related_name='stock'
+    )
+    current_quantity = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        editable=False,
+        help_text="Auto-updated by system on every stock movement"
+    )
+    quantity_unit = models.CharField(
+        max_length=50,
+        help_text="e.g. ml, g, sachets, vials"
+    )
+    reorder_threshold = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text="Minimum quantity before low stock alert is triggered"
+    )
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.drug.name} - {self.current_quantity}{self.quantity_unit}"
+
+
+
+# DrugPurchaseOrder Model
+class DrugPurchaseOrder(models.Model):
+    supplier = models.ForeignKey(
+        Supplier,
+        on_delete=models.PROTECT,
+        related_name='drug_purchase_orders'
+    )
+    purchase_date = models.DateField()
+    purchased_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='drug_orders_made'
+    )
+    authorized_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='drug_orders_authorized'
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Drug Order #{self.id} - {self.supplier.name} on {self.purchase_date}"
+
+
+# DrugPurchaseItem Model
+class DrugPurchaseItem(models.Model):
+    purchase_order = models.ForeignKey(
+        DrugPurchaseOrder,
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+    drug = models.ForeignKey(
+        DrugAndSupplement,
+        on_delete=models.PROTECT,
+        related_name='purchase_items'
+    )
+    quantity_purchased = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity_unit = models.CharField(
+        max_length=50,
+        help_text="e.g. ml, g, sachets, vials"
+    )
+    cost_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
+    total_cost = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        editable=False,
+        default=0,
+        help_text="Computed: quantity_purchased x cost_per_unit"
+    )
+    expiry_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Expiry date on this specific batch"
+    )
+    batch_number = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Supplier batch reference for traceability"
+    )
+
+    def __str__(self):
+        return f"{self.drug.name} - {self.quantity_purchased}{self.quantity_unit}"
+
+
+# DrugStockMovement Model
+class DrugStockMovement(models.Model):
+    MOVEMENT_TYPE_CHOICES = [
+        ('in', 'IN'),
+        ('out', 'OUT'),
+    ]
+
+    MOVEMENT_REASON_CHOICES = [
+        ('purchase', 'Purchase'),
+        ('administration', 'Administration'),
+        ('expired', 'Expired'),
+        ('damaged', 'Damaged'),
+        ('adjustment', 'Adjustment'),
+        ('other', 'Other'),
+    ]
+
+    REFERENCE_TYPE_CHOICES = [
+        ('drug_purchase', 'Drug Purchase'),
+        ('water_treatment', 'Water Treatment'),
+        ('manual', 'Manual'),
+    ]
+
+    drug_stock = models.ForeignKey(
+        DrugStock,
+        on_delete=models.PROTECT,
+        related_name='movements'
+    )
+    movement_type = models.CharField(max_length=3, choices=MOVEMENT_TYPE_CHOICES)
+    movement_reason = models.CharField(max_length=20, choices=MOVEMENT_REASON_CHOICES)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    balance_after = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        editable=False,
+        default=0,
+        help_text="Balance immediately after this movement — set automatically"
+    )
+    reference_type = models.CharField(
+        max_length=20,
+        choices=REFERENCE_TYPE_CHOICES,
+        blank=True
+    )
+    reference_id = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="ID of the linked Drug Purchase or Water Treatment record"
+    )
+    expiry_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Expiry date of this batch — relevant for IN movements"
+    )
+    batch_number = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Manufacturer batch code printed on product packaging"
+    )
+    adjustment_reason = models.TextField(
+        blank=True,
+        help_text="Required if movement reason is Adjustment"
+    )
+    authorized_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='drug_adjustments_authorized',
+        null=True,
+        blank=True,
+        help_text="Required for Adjustment and Expired movements"
+    )
+    recorded_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='drug_movements_recorded'
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.get_movement_type_display()} - {self.quantity} of {self.drug_stock.drug.name}"
+
+
+# WaterTreatmentLog Model
+class WaterTreatmentLog(models.Model):
+    DOSAGE_UNIT_CHOICES = [
+        ('ml', 'ml'),
+        ('g', 'g'),
+        ('sachets', 'Sachets'),
+        ('vials', 'Vials'),
+        ('other', 'Other'),
+    ]
+
+    flock = models.ForeignKey(
+        Flock,
+        on_delete=models.PROTECT,
+        related_name='water_treatments'
+    )
+    pen = models.ForeignKey(
+        Pen,
+        on_delete=models.PROTECT,
+        related_name='water_treatments'
+    )
+    treatment_date = models.DateField()
+    drug = models.ForeignKey(
+        DrugAndSupplement,
+        on_delete=models.PROTECT,
+        related_name='water_treatments',
+        null=True,
+        blank=True
+    )
+    is_plain_water = models.BooleanField(
+        default=False,
+        help_text="Check this if no drug or supplement was added"
+    )
+    dosage = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+    dosage_unit = models.CharField(
+        max_length=20,
+        choices=DOSAGE_UNIT_CHOICES,
+        blank=True
+    )
+    adjusted_dosage = models.BooleanField(
+        default=False,
+        help_text="Check if standard dosage was adjusted"
+    )
+    adjustment_reason = models.TextField(
+        blank=True,
+        help_text="Required if dosage was adjusted"
+    )
+    administered_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='water_treatments_administered'
+    )
+    authorized_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='water_treatments_authorized',
+        null=True,
+        blank=True,
+        help_text="Farm manager who approved — not required for plain water"
+    )
+    substitute_authorization = models.BooleanField(
+        default=False,
+        help_text="Check if a substitute authorized in the manager's absence"
+    )
+    observed_at = models.TimeField(
+        help_text="Time treatment was physically administered"
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        if self.is_plain_water:
+            return f"Plain water - {self.pen.name} on {self.treatment_date}"
+        return f"{self.drug.name} - {self.pen.name} on {self.treatment_date}"
+
+
+# EggCollection Model
+class EggCollection(models.Model):
+    flock = models.ForeignKey(
+        Flock,
+        on_delete=models.PROTECT,
+        related_name='egg_collections'
+    )
+    pen = models.ForeignKey(
+        Pen,
+        on_delete=models.PROTECT,
+        related_name='egg_collections'
+    )
+    collection_date = models.DateField()
+    observed_count = models.PositiveIntegerField(
+        help_text="Raw egg count inside the pen at point of collection"
+    )
+    collected_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='egg_collections'
+    )
+    observed_at = models.TimeField(
+        help_text="Time collection happened inside the pen"
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Egg Collection - {self.pen.name} on {self.collection_date}"
+
+
+
+# EggGrading Model
+class EggGrading(models.Model):
+    collection = models.OneToOneField(
+        EggCollection,
+        on_delete=models.PROTECT,
+        related_name='grading'
+    )
+    whole_eggs = models.PositiveIntegerField()
+    broken_eggs = models.PositiveIntegerField(default=0)
+    dirty_eggs = models.PositiveIntegerField(default=0)
+    total_graded = models.PositiveIntegerField(
+        editable=False,
+        default=0,
+        help_text="Computed: whole + broken + dirty — set automatically"
+    )
+    grading_discrepancy = models.IntegerField(
+        editable=False,
+        default=0,
+        help_text="Computed: total_graded minus observed_count — set automatically"
+    )
+    graded_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='egg_gradings'
+    )
+    support_staff = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='egg_grading_support',
+        null=True,
+        blank=True
+    )
+    graded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Grading - {self.collection.pen.name} on {self.collection.collection_date}"
+
+
+
+# EggStorageConfirmation Model
+class EggStorageConfirmation(models.Model):
+    grading = models.OneToOneField(
+        EggGrading,
+        on_delete=models.PROTECT,
+        related_name='storage_confirmation'
+    )
+    whole_eggs_stored = models.PositiveIntegerField()
+    broken_eggs_stored = models.PositiveIntegerField(default=0)
+    total_stored = models.PositiveIntegerField(
+        editable=False,
+        default=0,
+        help_text="Computed: sum of all stored counts — set automatically"
+    )
+    storage_discrepancy = models.IntegerField(
+        editable=False,
+        default=0,
+        help_text="Computed: total_graded minus total_stored — set automatically"
+    )
+    confirmed_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='egg_storage_confirmations'
+    )
+    confirmed_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Storage Confirmation - {self.grading.collection.pen.name}"
+
+
+# EggTransfer Model
+class EggTransfer(models.Model):
+    transfer_date = models.DateField()
+    whole_eggs = models.PositiveIntegerField()
+    broken_eggs = models.PositiveIntegerField(default=0)
+    total_eggs = models.PositiveIntegerField(
+        editable=False,
+        default=0,
+        help_text="Computed: sum of all three — set automatically"
+    )
+    transferred_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='egg_transfers'
+    )
+    received_by = models.CharField(
+        max_length=200,
+        help_text="Name of sales branch representative who received"
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Egg Transfer - {self.total_eggs} eggs on {self.transfer_date}"
+
+
+
+# MortalityRecord Model
+class MortalityRecord(models.Model):
+    flock = models.ForeignKey(
+        Flock,
+        on_delete=models.PROTECT,
+        related_name='mortality_records'
+    )
+    pen = models.ForeignKey(
+        Pen,
+        on_delete=models.PROTECT,
+        related_name='mortality_records'
+    )
+    date_found = models.DateField()
+    discovered_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='mortalities_discovered'
+    )
+    recorded_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='mortalities_recorded'
+    )
+    observed_at = models.TimeField(
+        help_text="Time worker physically found the dead birds"
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    total_count = models.PositiveIntegerField(
+        editable=False,
+        default=0,
+        help_text="Computed: sum of all MortalityRecordItem counts — set automatically"
+    )
+    is_high_mortality = models.BooleanField(
+        default=False,
+        editable=False,
+        help_text="Set automatically when total_count exceeds threshold"
+    )
+    alert_sent = models.BooleanField(default=False)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Mortality - {self.pen.name} on {self.date_found} ({self.total_count} birds)"
+
+
+
+
+# MortalityRecordItem Model
+class MortalityRecordItem(models.Model):
+    CONDITION_CHOICES = [
+        ('fresh', 'Fresh'),
+        ('decomposed', 'Decomposed'),
+        ('injured', 'Injured'),
+        ('unknown', 'Unknown'),
+    ]
+
+    DISPOSAL_METHOD_CHOICES = [
+        ('buried', 'Buried'),
+        ('burned', 'Burned'),
+        ('pit', 'Pit'),
+        ('sold', 'Sold'),
+        ('other', 'Other'),
+    ]
+
+    SUSPECTED_CAUSE_CHOICES = [
+        ('starvation', 'Starvation'),
+        ('disease', 'Disease'),
+        ('injury', 'Injury'),
+        ('unknown', 'Unknown'),
+        ('other', 'Other'),
+    ]
+
+    mortality_record = models.ForeignKey(
+        MortalityRecord,
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+    count = models.PositiveIntegerField()
+    condition = models.CharField(max_length=20, choices=CONDITION_CHOICES)
+    disposal_method = models.CharField(max_length=20, choices=DISPOSAL_METHOD_CHOICES)
+    sale_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Amount received if disposal method is Sold"
+    )
+    buyer_name = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Who bought the birds if disposal method is Sold"
+    )
+    suspected_cause = models.CharField(max_length=20, choices=SUSPECTED_CAUSE_CHOICES)
+
+    def __str__(self):
+        return f"{self.count} birds - {self.get_condition_display()} - {self.get_disposal_method_display()}"
+
+
+
+
+# MortalityAlert Model
+class MortalityAlert(models.Model):
+    RESPONSE_ACTION_CHOICES = [
+        ('vet_called', 'Vet Called'),
+        ('pen_inspected', 'Pen Inspected'),
+        ('feed_checked', 'Feed Checked'),
+        ('water_checked', 'Water Checked'),
+        ('birds_isolated', 'Birds Isolated'),
+        ('other', 'Other'),
+    ]
+
+    mortality_record = models.OneToOneField(
+        MortalityRecord,
+        on_delete=models.PROTECT,
+        related_name='alert'
+    )
+    alert_date = models.DateField(auto_now_add=True)
+    threshold_exceeded = models.PositiveIntegerField(
+        help_text="The count that triggered this alert"
+    )
+    notified_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='mortality_alerts_sent'
+    )
+    notified_persons = models.TextField(
+        help_text="List everyone who was informed — manager, owner, vet"
+    )
+    response_action = models.CharField(
+        max_length=20,
+        choices=RESPONSE_ACTION_CHOICES
+    )
+    response_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='mortality_alerts_actioned',
+        null=True,
+        blank=True
+    )
+    response_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+    resolved = models.BooleanField(default=False)
+    resolved_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Alert - {self.mortality_record.pen.name} on {self.alert_date}"
+
+
+# CleaningLog Model
+class CleaningLog(models.Model):
+    CLEANING_TYPE_CHOICES = [
+        ('daily', 'Daily'),
+        ('saturday_deep_clean', 'Saturday Deep Clean'),
+    ]
+
+    CONFIRMATION_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('rejected', 'Rejected'),
+    ]
+
+    pen = models.ForeignKey(
+        Pen,
+        on_delete=models.PROTECT,
+        related_name='cleaning_logs'
+    )
+    cleaning_date = models.DateField()
+    cleaning_type = models.CharField(max_length=25, choices=CLEANING_TYPE_CHOICES)
+    swept = models.BooleanField(default=False)
+    general_tidying_done = models.BooleanField(default=False)
+    gutter_cleared = models.BooleanField(default=False)
+    recorded_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='cleaning_logs_recorded'
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    confirmation_status = models.CharField(
+        max_length=20,
+        choices=CONFIRMATION_STATUS_CHOICES,
+        default='pending'
+    )
+    confirmed_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='cleaning_logs_confirmed',
+        null=True,
+        blank=True
+    )
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    confirmation_notes = models.TextField(
+        blank=True,
+        help_text="Supervisor remarks — especially important if status is Rejected"
+    )
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.get_cleaning_type_display()} - {self.pen.name} on {self.cleaning_date}"
+
+
+
+# ManureLog Model
+class ManureLog(models.Model):
+    pen = models.ForeignKey(
+        Pen,
+        on_delete=models.PROTECT,
+        related_name='manure_logs'
+    )
+    collection_date = models.DateField()
+    collected_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='manure_collected'
+    )
+    drying_done = models.BooleanField(default=False)
+    dried_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='manure_dried',
+        null=True,
+        blank=True
+    )
+    date_dried = models.DateField(null=True, blank=True)
+    bags_filled = models.PositiveIntegerField(null=True, blank=True)
+    bags_sold = models.PositiveIntegerField(null=True, blank=True)
+    price_per_bag = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+    total_revenue = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        editable=False,
+        default=0,
+        help_text="Computed: bags_sold x price_per_bag — set automatically"
+    )
+    buyer_name = models.CharField(max_length=200, blank=True)
+    payment_received = models.BooleanField(default=False)
+    payment_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+    recorded_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='manure_logs_recorded'
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Manure - {self.pen.name} on {self.collection_date}"
+
+
+
+
+# MaintenanceFault Model
+class MaintenanceFault(models.Model):
+    FAULT_TYPE_CHOICES = [
+        ('wire_mesh', 'Wire Mesh'),
+        ('nipple_drinker', 'Nipple Drinker'),
+        ('trough', 'Trough'),
+        ('frame', 'Cage Frame'),
+        ('latch', 'Latch or Door'),
+        ('other', 'Other'),
+    ]
+
+    SEVERITY_CHOICES = [
+        ('urgent', 'Urgent'),
+        ('minor', 'Minor'),
+    ]
+
+    STATUS_CHOICES = [
+        ('open', 'Open'),
+        ('assigned', 'Assigned'),
+        ('in_progress', 'In Progress'),
+        ('closed', 'Closed'),
+    ]
+
+    pen = models.ForeignKey(
+        Pen,
+        on_delete=models.PROTECT,
+        related_name='maintenance_faults'
+    )
+    fault_type = models.CharField(max_length=20, choices=FAULT_TYPE_CHOICES)
+    fault_description = models.TextField()
+    severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES)
+    reported_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='faults_reported'
+    )
+    reported_date = models.DateField()
+    observed_at = models.TimeField(
+        help_text="Time worker physically noticed the fault"
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=15,
+        choices=STATUS_CHOICES,
+        default='open'
+    )
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.get_fault_type_display()} - {self.pen.name} ({self.get_status_display()})"
+
+
+
+# MaintenanceRepair Model
+class MaintenanceRepair(models.Model):
+    fault = models.ForeignKey(
+        MaintenanceFault,
+        on_delete=models.PROTECT,
+        related_name='repairs'
+    )
+    assigned_to = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='repairs_assigned'
+    )
+    assigned_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='repairs_assigned_by'
+    )
+    assigned_date = models.DateField()
+    repair_date = models.DateField(null=True, blank=True)
+    repair_description = models.TextField(blank=True)
+    materials_used = models.TextField(blank=True)
+    repair_cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+    authorized_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='repairs_authorized',
+        null=True,
+        blank=True
+    )
+    is_temporary_fix = models.BooleanField(
+        default=False,
+        help_text="If checked the fault stays open until a permanent repair is recorded"
+    )
+    repaired_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='repairs_carried_out',
+        null=True,
+        blank=True
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+
+    def __str__(self):
+        return f"Repair for {self.fault} - assigned to {self.assigned_to.full_name}"
+
+
+
+# MaintenanceConfirmation Model
+class MaintenanceConfirmation(models.Model):
+    repair = models.OneToOneField(
+        MaintenanceRepair,
+        on_delete=models.PROTECT,
+        related_name='confirmation'
+    )
+    inspection_date = models.DateField()
+    fault_resolved = models.BooleanField(default=False)
+    confirmed_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='repairs_confirmed'
+    )
+    confirmed_at = models.DateTimeField(auto_now_add=True)
+    follow_up_required = models.BooleanField(default=False)
+    follow_up_notes = models.TextField(
+        blank=True,
+        help_text="Describe what still needs to be done if follow up is required"
+    )
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Confirmation - {self.repair.fault.pen.name} on {self.inspection_date}"

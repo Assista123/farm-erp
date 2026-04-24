@@ -1,5 +1,45 @@
 from django.contrib import admin
-from .models import FarmUnit, Pen, Worker, PenWorkerAssignment, Flock, Supplier, FlockPlacement, FeedType, DrugAndSupplement, FeedProcurement, FeedProcurementItem, FeedPayment, FeedDelivery, FeedDeliveryItem   
+from .models import (
+    FarmUnit, 
+    Pen,
+    Worker,
+    PenWorkerAssignment,
+    Flock,
+    Supplier, 
+    FlockPlacement, 
+    FeedType,
+    DrugAndSupplement,
+    FeedProcurement,
+    FeedProcurementItem, 
+    FeedPayment,
+    FeedDelivery,
+    FeedDeliveryItem,
+    FeedStock,
+    FeedStockMovement,
+    FeedIssuance,
+    FeedIssuanceItem,
+    PenFeedingActivity,
+    PenFeedingActivityItem,
+    PenFeedingSupervision,
+    DrugPurchaseOrder,
+    DrugPurchaseItem,
+    DrugStock,
+    DrugStockMovement,
+    WaterTreatmentLog,
+    EggCollection,
+    EggGrading,
+    EggStorageConfirmation,
+    EggTransfer,
+    MortalityRecord,
+    MortalityRecordItem,
+    MortalityAlert,
+    CleaningLog,
+    ManureLog,
+    MaintenanceFault,
+    MaintenanceRepair,
+    MaintenanceConfirmation,
+)
+
 
 # Register your models here.
 admin.site.register(FarmUnit)
@@ -16,3 +56,27 @@ admin.site.register(FeedProcurementItem)
 admin.site.register(FeedPayment)
 admin.site.register(FeedDelivery)
 admin.site.register(FeedDeliveryItem)
+admin.site.register(FeedStock)
+admin.site.register(FeedStockMovement)
+admin.site.register(FeedIssuance)
+admin.site.register(FeedIssuanceItem)
+admin.site.register(PenFeedingActivity)
+admin.site.register(PenFeedingActivityItem)
+admin.site.register(PenFeedingSupervision)
+admin.site.register(DrugPurchaseOrder)
+admin.site.register(DrugPurchaseItem)
+admin.site.register(DrugStock)
+admin.site.register(DrugStockMovement)
+admin.site.register(WaterTreatmentLog)
+admin.site.register(EggCollection)
+admin.site.register(EggGrading)
+admin.site.register(EggStorageConfirmation)
+admin.site.register(EggTransfer)
+admin.site.register(MortalityRecord)
+admin.site.register(MortalityRecordItem)
+admin.site.register(MortalityAlert)
+admin.site.register(CleaningLog)
+admin.site.register(ManureLog)
+admin.site.register(MaintenanceFault)
+admin.site.register(MaintenanceRepair)
+admin.site.register(MaintenanceConfirmation)
