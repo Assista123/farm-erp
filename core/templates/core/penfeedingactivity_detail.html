@@ -1,0 +1,73 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Feeding Activity — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Feeding Activity — {{ feeding_activity.flock }} on {{ feeding_activity.feeding_date }}</h4>
+
+<div class="card mb-4">
+    <div class="card-header">Details</div>
+    <div class="card-body">
+        <p><strong>Flock:</strong> {{ feeding_activity.flock }}</p>
+        <p><strong>Date:</strong> {{ feeding_activity.feeding_date }}</p>
+        <p><strong>Leftover Observed:</strong> {{ feeding_activity.leftover_observed|yesno:"Yes,No" }}</p>
+        <p><strong>Leftover Action:</strong> {{ feeding_activity.get_leftover_action_display|default:"—" }}</p>
+        <p><strong>Fed By:</strong> {{ feeding_activity.fed_by.full_name }}</p>
+        <p><strong>Notes:</strong> {{ feeding_activity.notes|default:"—" }}</p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Feed Used</div>
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Feed Type</th>
+                    <th>Bags Used</th>
+                    <th>Empty Bags Returned</th>
+                    <th>Discrepancy</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in feeding_activity.items.all %}
+                <tr>
+                    <td>{{ item.feed_type }}</td>
+                    <td>{{ item.bags_used }}</td>
+                    <td>{{ item.empty_bags_returned }}</td>
+                    <td>
+                        {% if item.bags_discrepancy != 0 %}
+                            <span class="badge bg-danger">{{ item.bags_discrepancy }}</span>
+                        {% else %}
+                            <span class="badge bg-success">0</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-3">No items recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if feeding_activity.supervision %}
+<div class="card">
+    <div class="card-header">Supervision</div>
+    <div class="card-body">
+        <p><strong>Distribution Even:</strong> {{ feeding_activity.supervision.distribution_even|yesno:"Yes,No" }}</p>
+        <p><strong>Trough Condition:</strong> {{ feeding_activity.supervision.get_trough_condition_display }}</p>
+        <p><strong>Bird Behavior:</strong> {{ feeding_activity.supervision.get_bird_behavior_display }}</p>
+        <p><strong>Status:</strong> {{ feeding_activity.supervision.get_confirmation_status_display }}</p>
+        <p><strong>Supervised By:</strong> {{ feeding_activity.supervision.supervised_by.full_name }}</p>
+        <p><strong>Notes:</strong> {{ feeding_activity.supervision.notes|default:"—" }}</p>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle"></i> This feeding activity has not been supervised yet.
+</div>
+{% endif %}
+{% endblock %}

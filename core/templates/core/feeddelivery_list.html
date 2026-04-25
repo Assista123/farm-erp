@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Feed Deliveries — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Feed Deliveries</h4>
+    <a href="{% url 'feeddelivery-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Record Delivery
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Order #</th>
+                    <th>Supplier</th>
+                    <th>Invoice</th>
+                    <th>Confirmed By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for delivery in deliveries %}
+                <tr>
+                    <td>{{ delivery.delivery_date }}</td>
+                    <td>#{{ delivery.procurement.id }}</td>
+                    <td>{{ delivery.procurement.supplier.name }}</td>
+                    <td>{{ delivery.invoice_number|default:"—" }}</td>
+                    <td>{{ delivery.delivery_confirmed_by.full_name }}</td>
+                    <td>
+                        <a href="{% url 'feeddelivery-detail' delivery.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                        <a href="{% url 'feeddelivery-update' delivery.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No deliveries recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

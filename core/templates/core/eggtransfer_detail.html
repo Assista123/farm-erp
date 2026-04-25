@@ -1,0 +1,20 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Egg Transfer — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Egg Transfer — {{ transfer.transfer_date }}</h4>
+
+<div class="card">
+    <div class="card-header">Transfer Details</div>
+    <div class="card-body">
+        <p><strong>Date:</strong> {{ transfer.transfer_date }}</p>
+        <p><strong>Whole Eggs:</strong> {{ transfer.whole_eggs }}</p>
+        <p><strong>Broken Eggs:</strong> {{ transfer.broken_eggs }}</p>
+        <p><strong>Total Eggs:</strong> {{ transfer.total_eggs }}</p>
+        <p><strong>Transferred By:</strong> {{ transfer.transferred_by.full_name }}</p>
+        <p><strong>Received By:</strong> {{ transfer.received_by }}</p>
+        <p><strong>Notes:</strong> {{ transfer.notes|default:"—" }}</p>
+    </div>
+</div>
+{% endblock %}

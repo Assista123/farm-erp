@@ -1,0 +1,69 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Egg Collection — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Egg Collection — {{ collection.pen.name }} on {{ collection.collection_date }}</h4>
+
+<div class="card mb-4">
+    <div class="card-header">Collection Details</div>
+    <div class="card-body">
+        <p><strong>Pen:</strong> {{ collection.pen.name }}</p>
+        <p><strong>Flock:</strong> {{ collection.flock }}</p>
+        <p><strong>Date:</strong> {{ collection.collection_date }}</p>
+        <p><strong>Observed Count:</strong> {{ collection.observed_count }}</p>
+        <p><strong>Collected By:</strong> {{ collection.collected_by.full_name }}</p>
+        <p><strong>Observed At:</strong> {{ collection.observed_at }}</p>
+        <p><strong>Notes:</strong> {{ collection.notes|default:"—" }}</p>
+    </div>
+</div>
+
+{% if collection.grading %}
+<div class="card mb-4">
+    <div class="card-header">Grading</div>
+    <div class="card-body">
+        <p><strong>Whole Eggs:</strong> {{ collection.grading.whole_eggs }}</p>
+        <p><strong>Broken Eggs:</strong> {{ collection.grading.broken_eggs }}</p>
+        <p><strong>Dirty Eggs:</strong> {{ collection.grading.dirty_eggs }}</p>
+        <p><strong>Total Graded:</strong> {{ collection.grading.total_graded }}</p>
+        <p><strong>Discrepancy:</strong>
+            {% if collection.grading.grading_discrepancy != 0 %}
+                <span class="text-danger">{{ collection.grading.grading_discrepancy }}</span>
+            {% else %}
+                <span class="text-success">0</span>
+            {% endif %}
+        </p>
+        <p><strong>Graded By:</strong> {{ collection.grading.graded_by.full_name }}</p>
+    </div>
+</div>
+
+{% if collection.grading.storage_confirmation %}
+<div class="card">
+    <div class="card-header">Storage Confirmation</div>
+    <div class="card-body">
+        <p><strong>Whole Eggs Stored:</strong> {{ collection.grading.storage_confirmation.whole_eggs_stored }}</p>
+        <p><strong>Broken Eggs Stored:</strong> {{ collection.grading.storage_confirmation.broken_eggs_stored }}</p>
+        <p><strong>Dirty Eggs Stored:</strong> {{ collection.grading.storage_confirmation.dirty_eggs_stored }}</p>
+        <p><strong>Total Stored:</strong> {{ collection.grading.storage_confirmation.total_stored }}</p>
+        <p><strong>Storage Discrepancy:</strong>
+            {% if collection.grading.storage_confirmation.storage_discrepancy != 0 %}
+                <span class="text-danger">{{ collection.grading.storage_confirmation.storage_discrepancy }}</span>
+            {% else %}
+                <span class="text-success">0</span>
+            {% endif %}
+        </p>
+        <p><strong>Confirmed By:</strong> {{ collection.grading.storage_confirmation.confirmed_by.full_name }}</p>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle"></i> Storage not yet confirmed.
+</div>
+{% endif %}
+
+{% else %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle"></i> Grading not yet recorded for this collection.
+</div>
+{% endif %}
+{% endblock %}

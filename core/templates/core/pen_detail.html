@@ -1,0 +1,46 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ pen.name }} — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>{{ pen.name }}</h4>
+    <a href="{% url 'pen-update' pen.pk %}" class="btn btn-outline-secondary">
+        <i class="bi bi-pencil"></i> Edit
+    </a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Details</div>
+    <div class="card-body">
+        <p><strong>Farm Unit:</strong> {{ pen.farm_unit.name }}</p>
+        <p><strong>Capacity:</strong> {{ pen.capacity }} birds</p>
+        <p><strong>Status:</strong>
+            {% if pen.is_active %}
+                <span class="badge bg-success">Active</span>
+            {% else %}
+                <span class="badge bg-secondary">Inactive</span>
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Active Flock</div>
+    <div class="card-body">
+        {% with pen.flocks.filter as active_flocks %}
+        {% for flock in pen.flocks.all %}
+            {% if flock.is_active %}
+            <p><strong>Bird Type:</strong> {{ flock.get_bird_type_display }}</p>
+            <p><strong>Initial Count:</strong> {{ flock.initial_count }}</p>
+            <p><strong>Current Count:</strong> {{ flock.current_count }}</p>
+            <p><strong>Date Placed:</strong> {{ flock.date_placed }}</p>
+            <a href="{% url 'flock-detail' flock.pk %}" class="btn btn-sm btn-outline-success">View Flock</a>
+            {% endif %}
+        {% empty %}
+            <p class="text-muted">No active flock in this pen.</p>
+        {% endfor %}
+        {% endwith %}
+    </div>
+</div>
+{% endblock %}

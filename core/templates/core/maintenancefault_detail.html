@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Fault — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Fault — {{ fault.pen.name }}</h4>
+    <span class="badge fs-6
+        {% if fault.status == 'closed' %}bg-success
+        {% elif fault.status == 'open' %}bg-danger
+        {% elif fault.status == 'in_progress' %}bg-warning text-dark
+        {% else %}bg-info text-dark{% endif %}">
+        {{ fault.get_status_display }}
+    </span>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Fault Details</div>
+    <div class="card-body">
+        <p><strong>Pen:</strong> {{ fault.pen.name }}</p>
+        <p><strong>Fault Type:</strong> {{ fault.get_fault_type_display }}</p>
+        <p><strong>Description:</strong> {{ fault.fault_description }}</p>
+        <p><strong>Severity:</strong> {{ fault.get_severity_display }}</p>
+        <p><strong>Reported By:</strong> {{ fault.reported_by.full_name }}</p>
+        <p><strong>Reported Date:</strong> {{ fault.reported_date }}</p>
+        <p><strong>Observed At:</strong> {{ fault.observed_at }}</p>
+        <p><strong>Notes:</strong> {{ fault.notes|default:"—" }}</p>
+    </div>
+</div>
+
+{% for repair in fault.repairs.all %}
+<div class="card mb-4">
+    <div class="card-header">Repair Record</div>
+    <div class="card-body">
+        <p><strong>Assigned To:</strong> {{ repair.assigned_to.full_name }}</p>
+        <p><strong>Assigned By:</strong> {{ repair.assigned_by.full_name }}</p>
+        <p><strong>Assigned Date:</strong> {{ repair.assigned_date }}</p>
+        <p><strong>Repair Date:</strong> {{ repair.repair_date|default:"Not yet done" }}</p>
+        <p><strong>Description:</strong> {{ repair.repair_description|default:"—" }}</p>
+        <p><strong>Materials Used:</strong> {{ repair.materials_used|default:"—" }}</p>
+        <p><strong>Cost:</strong> {{ repair.repair_cost|default:"—" }}</p>
+        <p><strong>Temporary Fix:</strong> {{ repair.is_temporary_fix|yesno:"Yes,No" }}</p>
+
+        {% if repair.confirmation %}
+        <hr>
+        <p><strong>Confirmed By:</strong> {{ repair.confirmation.confirmed_by.full_name }}</p>
+        <p><strong>Fault Resolved:</strong> {{ repair.confirmation.fault_resolved|yesno:"Yes,No" }}</p>
+        <p><strong>Follow Up Required:</strong> {{ repair.confirmation.follow_up_required|yesno:"Yes,No" }}</p>
+        {% if repair.confirmation.follow_up_notes %}
+        <p><strong>Follow Up Notes:</strong> {{ repair.confirmation.follow_up_notes }}</p>
+        {% endif %}
+        {% else %}
+        <div class="alert alert-warning mt-3">
+            <i class="bi bi-exclamation-triangle"></i> Repair not yet confirmed.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% empty %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> No repair assigned yet.
+</div>
+{% endfor %}
+{% endblock %}

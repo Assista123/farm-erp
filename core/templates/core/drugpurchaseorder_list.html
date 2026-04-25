@@ -1,0 +1,47 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Drug Purchase Orders — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Drug Purchase Orders</h4>
+    <a href="{% url 'drugpurchaseorder-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> New Order
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Supplier</th>
+                    <th>Date</th>
+                    <th>Purchased By</th>
+                    <th>Authorized By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in drug_orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.supplier.name }}</td>
+                    <td>{{ order.purchase_date }}</td>
+                    <td>{{ order.purchased_by.full_name }}</td>
+                    <td>{{ order.authorized_by.full_name }}</td>
+                    <td>
+                        <a href="{% url 'drugpurchaseorder-detail' order.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No drug orders found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

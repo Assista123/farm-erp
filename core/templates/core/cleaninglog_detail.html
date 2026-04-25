@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Cleaning Log — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Cleaning Log — {{ cleaning_log.pen.name }} on {{ cleaning_log.cleaning_date }}</h4>
+
+<div class="card mb-4">
+    <div class="card-header">Cleaning Details</div>
+    <div class="card-body">
+        <p><strong>Pen:</strong> {{ cleaning_log.pen.name }}</p>
+        <p><strong>Date:</strong> {{ cleaning_log.cleaning_date }}</p>
+        <p><strong>Type:</strong> {{ cleaning_log.get_cleaning_type_display }}</p>
+        <p><strong>Swept:</strong> {{ cleaning_log.swept|yesno:"Yes,No" }}</p>
+        <p><strong>General Tidying Done:</strong> {{ cleaning_log.general_tidying_done|yesno:"Yes,No" }}</p>
+        <p><strong>Gutter Cleared:</strong> {{ cleaning_log.gutter_cleared|yesno:"Yes,No" }}</p>
+        <p><strong>Recorded By:</strong> {{ cleaning_log.recorded_by.full_name }}</p>
+        <p><strong>Notes:</strong> {{ cleaning_log.notes|default:"—" }}</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Supervisor Confirmation</div>
+    <div class="card-body">
+        <p><strong>Status:</strong>
+            {% if cleaning_log.confirmation_status == 'confirmed' %}
+                <span class="badge bg-success">Confirmed</span>
+            {% elif cleaning_log.confirmation_status == 'pending' %}
+                <span class="badge bg-warning text-dark">Pending</span>
+            {% else %}
+                <span class="badge bg-danger">Rejected</span>
+            {% endif %}
+        </p>
+        {% if cleaning_log.confirmed_by %}
+        <p><strong>Confirmed By:</strong> {{ cleaning_log.confirmed_by.full_name }}</p>
+        <p><strong>Confirmed At:</strong> {{ cleaning_log.confirmed_at }}</p>
+        {% endif %}
+        {% if cleaning_log.confirmation_notes %}
+        <p><strong>Supervisor Notes:</strong> {{ cleaning_log.confirmation_notes }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

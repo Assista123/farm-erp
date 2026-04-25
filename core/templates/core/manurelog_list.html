@@ -1,0 +1,49 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Manure Logs — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Manure Logs</h4>
+    <a href="{% url 'manurelog-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Record Manure
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Pen</th>
+                    <th>Drying Done</th>
+                    <th>Bags Filled</th>
+                    <th>Bags Sold</th>
+                    <th>Revenue</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in manure_logs %}
+                <tr>
+                    <td>{{ log.collection_date }}</td>
+                    <td>{{ log.pen.name }}</td>
+                    <td>{{ log.drying_done|yesno:"Yes,No" }}</td>
+                    <td>{{ log.bags_filled|default:"—" }}</td>
+                    <td>{{ log.bags_sold|default:"—" }}</td>
+                    <td>{{ log.total_revenue|default:"—" }}</td>
+                    <td>
+                        <a href="{% url 'manurelog-detail' log.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No manure logs found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

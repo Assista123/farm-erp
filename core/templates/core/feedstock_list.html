@@ -1,0 +1,46 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Feed Stock — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Feed Stock</h4>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Feed Type</th>
+                    <th>Current Balance</th>
+                    <th>Reorder Threshold</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in stocks %}
+                <tr>
+                    <td>{{ stock.feed_type }}</td>
+                    <td>{{ stock.current_balance }} bags</td>
+                    <td>{{ stock.reorder_threshold }} bags</td>
+                    <td>
+                        {% if stock.current_balance <= stock.reorder_threshold %}
+                            <span class="badge bg-danger">Low Stock</span>
+                        {% else %}
+                            <span class="badge bg-success">Adequate</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'feedstock-detail' stock.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">No stock records found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

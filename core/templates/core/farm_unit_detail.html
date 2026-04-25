@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ farm_unit.name }} — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>{{ farm_unit.name }}</h4>
+    <a href="{% url 'farmunit-update' farm_unit.pk %}" class="btn btn-outline-secondary">
+        <i class="bi bi-pencil"></i> Edit
+    </a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Details</div>
+    <div class="card-body">
+        <p><strong>Name:</strong> {{ farm_unit.name }}</p>
+        <p><strong>Description:</strong> {{ farm_unit.description|default:"—" }}</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Pens in this Unit</div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Pen Name</th>
+                    <th>Capacity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pen in farm_unit.pens.all %}
+                <tr>
+                    <td>{{ pen.name }}</td>
+                    <td>{{ pen.capacity }}</td>
+                    <td>
+                        {% if pen.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'pen-detail' pen.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-3">No pens in this unit yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

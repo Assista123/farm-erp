@@ -1,0 +1,53 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Mortality Records — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Mortality Records</h4>
+    <a href="{% url 'mortalityrecord-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Record Mortality
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Pen</th>
+                    <th>Total Count</th>
+                    <th>Alert</th>
+                    <th>Discovered By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in mortality_records %}
+                <tr>
+                    <td>{{ record.date_found }}</td>
+                    <td>{{ record.pen.name }}</td>
+                    <td>{{ record.total_count }}</td>
+                    <td>
+                        {% if record.is_high_mortality %}
+                            <span class="badge bg-danger">High Mortality</span>
+                        {% else %}
+                            <span class="badge bg-success">Normal</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ record.discovered_by.full_name }}</td>
+                    <td>
+                        <a href="{% url 'mortalityrecord-detail' record.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No mortality records found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

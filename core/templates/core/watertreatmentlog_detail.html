@@ -1,0 +1,35 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Treatment — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Water Treatment — {{ treatment.pen.name }} on {{ treatment.treatment_date }}</h4>
+
+<div class="card">
+    <div class="card-header">Details</div>
+    <div class="card-body">
+        <p><strong>Pen:</strong> {{ treatment.pen.name }}</p>
+        <p><strong>Flock:</strong> {{ treatment.flock }}</p>
+        <p><strong>Date:</strong> {{ treatment.treatment_date }}</p>
+        <p><strong>Type:</strong>
+            {% if treatment.is_plain_water %}
+                Plain Water
+            {% else %}
+                {{ treatment.drug.name }}
+            {% endif %}
+        </p>
+        {% if not treatment.is_plain_water %}
+        <p><strong>Dosage:</strong> {{ treatment.dosage }} {{ treatment.get_dosage_unit_display }}</p>
+        <p><strong>Adjusted:</strong> {{ treatment.adjusted_dosage|yesno:"Yes,No" }}</p>
+        {% if treatment.adjusted_dosage %}
+        <p><strong>Adjustment Reason:</strong> {{ treatment.adjustment_reason }}</p>
+        {% endif %}
+        <p><strong>Authorized By:</strong> {{ treatment.authorized_by.full_name|default:"—" }}</p>
+        <p><strong>Substitute Authorization:</strong> {{ treatment.substitute_authorization|yesno:"Yes,No" }}</p>
+        {% endif %}
+        <p><strong>Administered By:</strong> {{ treatment.administered_by.full_name }}</p>
+        <p><strong>Observed At:</strong> {{ treatment.observed_at }}</p>
+        <p><strong>Notes:</strong> {{ treatment.notes|default:"—" }}</p>
+    </div>
+</div>
+{% endblock %}

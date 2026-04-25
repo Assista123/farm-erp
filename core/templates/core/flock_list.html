@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Flocks — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Active Flocks</h4>
+    <a href="{% url 'flock-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Add Flock
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Pen</th>
+                    <th>Bird Type</th>
+                    <th>Initial Count</th>
+                    <th>Current Count</th>
+                    <th>Date Placed</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for flock in flocks %}
+                <tr>
+                    <td>{{ flock.pen.name }}</td>
+                    <td>{{ flock.get_bird_type_display }}</td>
+                    <td>{{ flock.initial_count }}</td>
+                    <td>{{ flock.current_count }}</td>
+                    <td>{{ flock.date_placed }}</td>
+                    <td>
+                        <a href="{% url 'flock-detail' flock.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                        <a href="{% url 'flock-update' flock.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No active flocks found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

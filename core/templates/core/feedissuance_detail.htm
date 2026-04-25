@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Feed Issuance — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Feed Issuance — {{ issuance.pen.name }} on {{ issuance.issuance_date }}</h4>
+
+<div class="card mb-4">
+    <div class="card-header">Details</div>
+    <div class="card-body">
+        <p><strong>Pen:</strong> {{ issuance.pen.name }}</p>
+        <p><strong>Flock:</strong> {{ issuance.flock }}</p>
+        <p><strong>Date:</strong> {{ issuance.issuance_date }}</p>
+        <p><strong>Issued By:</strong> {{ issuance.issued_by.full_name }}</p>
+        <p><strong>Received By:</strong> {{ issuance.received_by.full_name }}</p>
+        <p><strong>Notes:</strong> {{ issuance.notes|default:"—" }}</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Items Issued</div>
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Feed Type</th>
+                    <th>Bags Issued</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in issuance.items.all %}
+                <tr>
+                    <td>{{ item.feed_type }}</td>
+                    <td>{{ item.bags_issued }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" class="text-center text-muted py-3">No items recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Mortality Record — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Mortality — {{ mortality_record.pen.name }} on {{ mortality_record.date_found }}</h4>
+    {% if mortality_record.is_high_mortality %}
+        <span class="badge bg-danger fs-6">High Mortality Alert</span>
+    {% endif %}
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Details</div>
+    <div class="card-body">
+        <p><strong>Pen:</strong> {{ mortality_record.pen.name }}</p>
+        <p><strong>Flock:</strong> {{ mortality_record.flock }}</p>
+        <p><strong>Date Found:</strong> {{ mortality_record.date_found }}</p>
+        <p><strong>Observed At:</strong> {{ mortality_record.observed_at }}</p>
+        <p><strong>Total Count:</strong> {{ mortality_record.total_count }}</p>
+        <p><strong>Discovered By:</strong> {{ mortality_record.discovered_by.full_name }}</p>
+        <p><strong>Recorded By:</strong> {{ mortality_record.recorded_by.full_name }}</p>
+        <p><strong>Notes:</strong> {{ mortality_record.notes|default:"—" }}</p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Bird Details</div>
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Count</th>
+                    <th>Condition</th>
+                    <th>Disposal</th>
+                    <th>Cause</th>
+                    <th>Sale Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in mortality_record.items.all %}
+                <tr>
+                    <td>{{ item.count }}</td>
+                    <td>{{ item.get_condition_display }}</td>
+                    <td>{{ item.get_disposal_method_display }}</td>
+                    <td>{{ item.get_suspected_cause_display }}</td>
+                    <td>{{ item.sale_amount|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-3">No items recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if mortality_record.is_high_mortality %}
+<div class="card">
+    <div class="card-header">Alert Response</div>
+    <div class="card-body">
+        {% if mortality_record.alert %}
+            <p><strong>Notified Persons:</strong> {{ mortality_record.alert.notified_persons }}</p>
+            <p><strong>Response Action:</strong> {{ mortality_record.alert.get_response_action_display }}</p>
+            <p><strong>Resolved:</strong> {{ mortality_record.alert.resolved|yesno:"Yes,No" }}</p>
+        {% else %}
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle"></i> No alert response recorded yet.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

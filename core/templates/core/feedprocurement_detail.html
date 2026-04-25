@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Order #{{ procurement.id }} — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Feed Order #{{ procurement.id }}</h4>
+    <a href="{% url 'feedprocurement-update' procurement.pk %}" class="btn btn-outline-secondary">
+        <i class="bi bi-pencil"></i> Edit
+    </a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Order Details</div>
+    <div class="card-body">
+        <p><strong>Supplier:</strong> {{ procurement.supplier.name }}</p>
+        <p><strong>Order Date:</strong> {{ procurement.order_date }}</p>
+        <p><strong>Expected Delivery:</strong> {{ procurement.expected_delivery_date|default:"—" }}</p>
+        <p><strong>Status:</strong> {{ procurement.get_status_display }}</p>
+        <p><strong>Ordered By:</strong> {{ procurement.ordered_by.full_name }}</p>
+        <p><strong>Notes:</strong> {{ procurement.notes|default:"—" }}</p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Order Items</div>
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Feed Type</th>
+                    <th>Quantity</th>
+                    <th>Bag Size</th>
+                    <th>Price/Bag</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in procurement.items.all %}
+                <tr>
+                    <td>{{ item.feed_type }}</td>
+                    <td>{{ item.quantity_ordered }} bags</td>
+                    <td>{{ item.bag_size_kg }}kg</td>
+                    <td>{{ item.price_per_bag }}</td>
+                    <td>{{ item.total_cost }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-3">No items added yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Payments</div>
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Receipt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in procurement.payments.all %}
+                <tr>
+                    <td>{{ payment.payment_date }}</td>
+                    <td>{{ payment.amount_paid }}</td>
+                    <td>{{ payment.get_payment_method_display }}</td>
+                    <td>{{ payment.receipt_number|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-3">No payments recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

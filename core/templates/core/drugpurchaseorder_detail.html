@@ -1,0 +1,54 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Drug Order #{{ drug_order.id }} — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Drug Purchase Order #{{ drug_order.id }}</h4>
+
+<div class="card mb-4">
+    <div class="card-header">Order Details</div>
+    <div class="card-body">
+        <p><strong>Supplier:</strong> {{ drug_order.supplier.name }}</p>
+        <p><strong>Purchase Date:</strong> {{ drug_order.purchase_date }}</p>
+        <p><strong>Purchased By:</strong> {{ drug_order.purchased_by.full_name }}</p>
+        <p><strong>Authorized By:</strong> {{ drug_order.authorized_by.full_name }}</p>
+        <p><strong>Notes:</strong> {{ drug_order.notes|default:"—" }}</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Items</div>
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th>Cost/Unit</th>
+                    <th>Total</th>
+                    <th>Expiry</th>
+                    <th>Batch</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in drug_order.items.all %}
+                <tr>
+                    <td>{{ item.drug.name }}</td>
+                    <td>{{ item.quantity_purchased }}</td>
+                    <td>{{ item.quantity_unit }}</td>
+                    <td>{{ item.cost_per_unit }}</td>
+                    <td>{{ item.total_cost }}</td>
+                    <td>{{ item.expiry_date|default:"—" }}</td>
+                    <td>{{ item.batch_number|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-3">No items recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

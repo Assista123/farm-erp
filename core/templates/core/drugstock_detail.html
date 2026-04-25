@@ -1,0 +1,60 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ drug_stock.drug.name }} Stock — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">{{ drug_stock.drug.name }} — Stock Details</h4>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-success">{{ drug_stock.current_quantity }}</div>
+            <div class="text-muted small">Current Quantity ({{ drug_stock.quantity_unit }})</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-warning">{{ drug_stock.reorder_threshold }}</div>
+            <div class="text-muted small">Reorder Threshold</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Recent Movements</div>
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Reason</th>
+                    <th>Quantity</th>
+                    <th>Balance After</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movement in drug_stock.movements.all|slice:":20" %}
+                <tr>
+                    <td>{{ movement.recorded_at|date:"d M Y" }}</td>
+                    <td>
+                        {% if movement.movement_type == 'in' %}
+                            <span class="badge bg-success">IN</span>
+                        {% else %}
+                            <span class="badge bg-danger">OUT</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ movement.get_movement_reason_display }}</td>
+                    <td>{{ movement.quantity }}</td>
+                    <td>{{ movement.balance_after }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-3">No movements recorded yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Cleaning Logs — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Cleaning Logs</h4>
+    <a href="{% url 'cleaninglog-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Record Cleaning
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Pen</th>
+                    <th>Type</th>
+                    <th>Swept</th>
+                    <th>Gutter Cleared</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in cleaning_logs %}
+                <tr>
+                    <td>{{ log.cleaning_date }}</td>
+                    <td>{{ log.pen.name }}</td>
+                    <td>{{ log.get_cleaning_type_display }}</td>
+                    <td>{{ log.swept|yesno:"Yes,No" }}</td>
+                    <td>{{ log.gutter_cleared|yesno:"Yes,No" }}</td>
+                    <td>
+                        {% if log.confirmation_status == 'confirmed' %}
+                            <span class="badge bg-success">Confirmed</span>
+                        {% elif log.confirmation_status == 'pending' %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% else %}
+                            <span class="badge bg-danger">Rejected</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'cleaninglog-detail' log.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No cleaning logs found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

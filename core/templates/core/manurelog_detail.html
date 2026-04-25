@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Manure Log — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Manure Log — {{ manure_log.pen.name }} on {{ manure_log.collection_date }}</h4>
+
+<div class="card mb-4">
+    <div class="card-header">Collection Details</div>
+    <div class="card-body">
+        <p><strong>Pen:</strong> {{ manure_log.pen.name }}</p>
+        <p><strong>Collection Date:</strong> {{ manure_log.collection_date }}</p>
+        <p><strong>Collected By:</strong> {{ manure_log.collected_by.full_name }}</p>
+        <p><strong>Drying Done:</strong> {{ manure_log.drying_done|yesno:"Yes,No" }}</p>
+        {% if manure_log.drying_done %}
+        <p><strong>Dried By:</strong> {{ manure_log.dried_by.full_name|default:"—" }}</p>
+        <p><strong>Date Dried:</strong> {{ manure_log.date_dried|default:"—" }}</p>
+        <p><strong>Bags Filled:</strong> {{ manure_log.bags_filled|default:"—" }}</p>
+        {% endif %}
+        <p><strong>Notes:</strong> {{ manure_log.notes|default:"—" }}</p>
+    </div>
+</div>
+
+{% if manure_log.bags_sold %}
+<div class="card">
+    <div class="card-header">Sale Details</div>
+    <div class="card-body">
+        <p><strong>Bags Sold:</strong> {{ manure_log.bags_sold }}</p>
+        <p><strong>Price Per Bag:</strong> {{ manure_log.price_per_bag }}</p>
+        <p><strong>Total Revenue:</strong> {{ manure_log.total_revenue }}</p>
+        <p><strong>Buyer:</strong> {{ manure_log.buyer_name|default:"—" }}</p>
+        <p><strong>Payment Received:</strong> {{ manure_log.payment_received|yesno:"Yes,No" }}</p>
+        <p><strong>Amount Received:</strong> {{ manure_log.payment_amount|default:"—" }}</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
