@@ -82,7 +82,7 @@ class FarmUnitCreateView(LoginRequiredMixin, CreateView):
 class FarmUnitUpdateView(LoginRequiredMixin, UpdateView):
     model = FarmUnit
     template_name = 'core/form.html'
-    fields = ['name', 'description', 'is_active']
+    fields = ['name', 'description']
     success_url = reverse_lazy('farmunit-list')
 
     def get_context_data(self, **kwargs):
@@ -461,7 +461,6 @@ class DrugStockListView(LoginRequiredMixin, ListView):
     context_object_name = 'drug_stocks'
 
 
-
 class DrugStockDetailView(LoginRequiredMixin, DetailView):
     model = DrugStock
     template_name = 'core/drugstock_detail.html'
@@ -542,7 +541,7 @@ class EggTransferDetailView(LoginRequiredMixin, DetailView):
 class EggTransferCreateView(LoginRequiredMixin, CreateView):
     model = EggTransfer
     template_name = 'core/form.html'
-    fields = ['transfer_date', 'whole_eggs', 'broken_eggs', 'dirty_eggs',
+    fields = ['transfer_date', 'whole_eggs', 'broken_eggs',
               'transferred_by', 'received_by', 'notes']
     success_url = reverse_lazy('eggtransfer-list')
 

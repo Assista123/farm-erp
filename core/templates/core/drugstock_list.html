@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Drug Stock — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Drug & Supplement Stock</h4>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Type</th>
+                    <th>Current Quantity</th>
+                    <th>Unit</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in drug_stocks %}
+                <tr>
+                    <td>{{ stock.drug.name }}</td>
+                    <td>{{ stock.drug.get_treatment_type_display }}</td>
+                    <td>{{ stock.current_quantity }}</td>
+                    <td>{{ stock.quantity_unit }}</td>
+                    <td>
+                        {% if stock.current_quantity <= stock.reorder_threshold %}
+                            <span class="badge bg-danger">Low Stock</span>
+                        {% else %}
+                            <span class="badge bg-success">Adequate</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'drugstock-detail' stock.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No drug stock records found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
