@@ -860,10 +860,8 @@ class EggCollection(models.Model):
 
 # EggGrading Model
 class EggGrading(models.Model):
-    collection = models.OneToOneField(
-        EggCollection,
-        on_delete=models.PROTECT,
-        related_name='grading'
+    grading_date = models.DateField(
+        help_text="Date grading was done — covers all collections from this date"
     )
     whole_eggs = models.PositiveIntegerField()
     broken_eggs = models.PositiveIntegerField(default=0)
@@ -873,10 +871,15 @@ class EggGrading(models.Model):
         default=0,
         help_text="Computed: whole + broken + dirty — set automatically"
     )
+    total_collected = models.PositiveIntegerField(
+        editable=False,
+        default=0,
+        help_text="Computed: sum of all pen collections on this date — set automatically"
+    )
     grading_discrepancy = models.IntegerField(
         editable=False,
         default=0,
-        help_text="Computed: total_graded minus observed_count — set automatically"
+        help_text="Computed: total_graded minus total_collected — set automatically"
     )
     graded_by = models.ForeignKey(
         Worker,
@@ -893,9 +896,11 @@ class EggGrading(models.Model):
     graded_at = models.DateTimeField(auto_now_add=True)
     notes = models.TextField(blank=True)
 
-    def __str__(self):
-        return f"Grading - {self.collection.pen.name} on {self.collection.collection_date}"
+    class Meta:
+        unique_together = ['grading_date']
 
+    def __str__str(self):
+        return f"Egg Grading — {self.grading_date}"
 
 
 # EggStorageConfirmation Model

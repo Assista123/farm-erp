@@ -132,19 +132,25 @@ def compute_egg_grading_totals(sender, instance, **kwargs):
     )
 
 # ── EGG STORAGE CONFIRMATION ─────────────────────────────────────────────────
-@receiver(post_save, sender=EggStorageConfirmation)
-def compute_egg_storage_totals(sender, instance, **kwargs):
-    """Auto-compute total_stored and storage_discrepancy on EggStorageConfirmation."""
-    total = (
-        instance.whole_eggs_stored +
-        instance.broken_eggs_stored
-    )
-    discrepancy = instance.grading.total_graded - total
-    EggStorageConfirmation.objects.filter(pk=instance.pk).update(
-        total_stored=total,
-        storage_discrepancy=discrepancy
-    )
+@receiver(post_save, sender=EggGrading)
+def compute_egg_grading_totals(sender, instance, **kwargs):
+    """Auto-compute total_graded, total_collected and grading_discrepancy on EggGrading.
+    total_collected is the sum of all pen collections on the same date."""
+    from django.db.models import Sum
 
+    total_graded = instance.whole_eggs + instance.broken_eggs
+
+    total_collected = EggCollection.objects.filter(
+        collection_date=instance.grading_date
+    ).aggregate(Sum('observed_count'))['observed_count__sum'] or 0
+
+    discrepancy = total_graded - total_collected
+
+    EggGrading.objects.filter(pk=instance.pk).update(
+        total_graded=total_graded,
+        total_collected=total_collected,
+        grading_discrepancy=discrepancy
+    )
 
 # ── MANURE LOG ───────────────────────────────────────────────────────────────
 @receiver(post_save, sender=ManureLog)

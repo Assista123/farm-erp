@@ -19,7 +19,6 @@
                     <th>Total Eggs</th>
                     <th>Whole</th>
                     <th>Broken</th>
-                    <th>Dirty</th>
                     <th>Received By</th>
                     <th>Actions</th>
                 </tr>
@@ -31,7 +30,6 @@
                     <td>{{ transfer.total_eggs }}</td>
                     <td>{{ transfer.whole_eggs }}</td>
                     <td>{{ transfer.broken_eggs }}</td>
-                    <td>{{ transfer.dirty_eggs }}</td>
                     <td>{{ transfer.received_by }}</td>
                     <td>
                         <a href="{% url 'eggtransfer-detail' transfer.pk %}" class="btn btn-sm btn-outline-success">View</a>
