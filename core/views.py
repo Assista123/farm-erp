@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView
@@ -8,13 +8,27 @@ from django.contrib.auth.decorators import login_required
 from datetime import date
 from django.db.models import Sum, Count, F
 
+
+
+from .forms import (
+    FeedProcurementForm, FeedProcurementItemFormSet,
+    FeedDeliveryForm, FeedDeliveryItemFormSet,
+    FeedIssuanceForm, FeedIssuanceItemFormSet,
+    PenFeedingActivityForm, PenFeedingActivityItemFormSet,
+    DrugPurchaseOrderForm, DrugPurchaseItemFormSet,
+    MortalityRecordForm, MortalityRecordItemFormSet,
+)
+
+
 from .models import (
     FarmUnit, Pen, Worker, Flock, Supplier,
-    FeedProcurement, FeedDelivery, FeedStock,
-    FeedIssuance, PenFeedingActivity,
-    WaterTreatmentLog, MortalityRecord, DrugStock,
-    DrugPurchaseOrder, EggCollection, EggTransfer,
+    FlockPlacement, FeedProcurement, FeedDelivery, FeedStock,
+    FeedIssuance, PenFeedingActivity, PenFeedingSupervision,
+    WaterTreatmentLog, MortalityRecord, MortalityAlert, DrugStock,
+    DrugPurchaseOrder, EggCollection, EggGrading,
+    EggStorageConfirmation, EggTransfer,
     CleaningLog, MaintenanceFault, ManureLog,
+    MaintenanceRepair, MaintenanceConfirmation,
 )
 
 
@@ -242,6 +256,32 @@ class SupplierUpdateView(LoginRequiredMixin, UpdateView):
         context['cancel_url'] = reverse_lazy('supplier-list')
         return context
 
+class FlockPlacementListView(LoginRequiredMixin, ListView):
+    model = FlockPlacement
+    template_name = 'core/flockplacement_list.html'
+    context_object_name = 'placements'
+    ordering = ['-placement_date']
+
+
+class FlockPlacementDetailView(LoginRequiredMixin, DetailView):
+    model = FlockPlacement
+    template_name = 'core/flockplacement_detail.html'
+    context_object_name = 'placement'
+
+
+class FlockPlacementCreateView(LoginRequiredMixin, CreateView):
+    model = FlockPlacement
+    template_name = 'core/form.html'
+    fields = ['flock', 'supplier', 'quantity_received', 'cost_per_bird',
+              'placement_date', 'recorded_by', 'notes']
+    success_url = reverse_lazy('flockplacement-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Flock Placement'
+        context['cancel_url'] = reverse_lazy('flockplacement-list')
+        return context
+
 
 # ══════════════════════════════════════════════════════════════════
 # FEED
@@ -260,18 +300,25 @@ class FeedProcurementDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'procurement'
 
 
-class FeedProcurementCreateView(LoginRequiredMixin, CreateView):
-    model = FeedProcurement
-    template_name = 'core/form.html'
-    fields = ['supplier', 'order_date', 'expected_delivery_date',
-              'status', 'ordered_by', 'notes']
-    success_url = reverse_lazy('feedprocurement-list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'New Feed Order'
-        context['cancel_url'] = reverse_lazy('feedprocurement-list')
-        return context
+@login_required
+def feedprocurement_create(request):
+    if request.method == 'POST':
+        form = FeedProcurementForm(request.POST)
+        formset = FeedProcurementItemFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
+            procurement = form.save()
+            formset.instance = procurement
+            formset.save()
+            return redirect('feedprocurement-list')
+    else:
+        form = FeedProcurementForm()
+        formset = FeedProcurementItemFormSet()
+    return render(request, 'core/formset_form.html', {
+        'form': form,
+        'formset': formset,
+        'title': 'New Feed Order',
+        'cancel_url': reverse_lazy('feedprocurement-list')
+    })
 
 
 class FeedProcurementUpdateView(LoginRequiredMixin, UpdateView):
@@ -300,19 +347,25 @@ class FeedDeliveryDetailView(LoginRequiredMixin, DetailView):
     template_name = 'core/feeddelivery_detail.html'
     context_object_name = 'delivery'
 
-
-class FeedDeliveryCreateView(LoginRequiredMixin, CreateView):
-    model = FeedDelivery
-    template_name = 'core/form.html'
-    fields = ['procurement', 'delivery_date', 'invoice_number',
-              'delivery_confirmed_by', 'received_at', 'notes']
-    success_url = reverse_lazy('feeddelivery-list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Record Feed Delivery'
-        context['cancel_url'] = reverse_lazy('feeddelivery-list')
-        return context
+@login_required
+def feeddelivery_create(request):
+    if request.method == 'POST':
+        form = FeedDeliveryForm(request.POST)
+        formset = FeedDeliveryItemFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
+            delivery = form.save()
+            formset.instance = delivery
+            formset.save()
+            return redirect('feeddelivery-list')
+    else:
+        form = FeedDeliveryForm()
+        formset = FeedDeliveryItemFormSet()
+    return render(request, 'core/formset_form.html', {
+        'form': form,
+        'formset': formset,
+        'title': 'Record Feed Delivery',
+        'cancel_url': reverse_lazy('feeddelivery-list')
+    })
 
 
 class FeedDeliveryUpdateView(LoginRequiredMixin, UpdateView):
@@ -354,18 +407,25 @@ class FeedIssuanceDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'issuance'
 
 
-class FeedIssuanceCreateView(LoginRequiredMixin, CreateView):
-    model = FeedIssuance
-    template_name = 'core/form.html'
-    fields = ['pen', 'flock', 'issuance_date', 'issued_by',
-              'received_by', 'notes']
-    success_url = reverse_lazy('feedissuance-list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Record Feed Issuance'
-        context['cancel_url'] = reverse_lazy('feedissuance-list')
-        return context
+@login_required
+def feedissuance_create(request):
+    if request.method == 'POST':
+        form = FeedIssuanceForm(request.POST)
+        formset = FeedIssuanceItemFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
+            issuance = form.save()
+            formset.instance = issuance
+            formset.save()
+            return redirect('feedissuance-list')
+    else:
+        form = FeedIssuanceForm()
+        formset = FeedIssuanceItemFormSet()
+    return render(request, 'core/formset_form.html', {
+        'form': form,
+        'formset': formset,
+        'title': 'Record Feed Issuance',
+        'cancel_url': reverse_lazy('feedissuance-list')
+    })
 
 
 class PenFeedingActivityListView(LoginRequiredMixin, ListView):
@@ -381,18 +441,25 @@ class PenFeedingActivityDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'feeding_activity'
 
 
-class PenFeedingActivityCreateView(LoginRequiredMixin, CreateView):
-    model = PenFeedingActivity
-    template_name = 'core/form.html'
-    fields = ['issuance', 'flock', 'feeding_date', 'leftover_observed',
-              'leftover_action', 'fed_by', 'notes']
-    success_url = reverse_lazy('penfeedingactivity-list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Record Feeding Activity'
-        context['cancel_url'] = reverse_lazy('penfeedingactivity-list')
-        return context
+@login_required
+def penfeedingactivity_create(request):
+    if request.method == 'POST':
+        form = PenFeedingActivityForm(request.POST)
+        formset = PenFeedingActivityItemFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
+            activity = form.save()
+            formset.instance = activity
+            formset.save()
+            return redirect('penfeedingactivity-list')
+    else:
+        form = PenFeedingActivityForm()
+        formset = PenFeedingActivityItemFormSet()
+    return render(request, 'core/formset_form.html', {
+        'form': form,
+        'formset': formset,
+        'title': 'Record Feeding Activity',
+        'cancel_url': reverse_lazy('penfeedingactivity-list')
+    })
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -454,6 +521,32 @@ class MortalityRecordCreateView(LoginRequiredMixin, CreateView):
         context['cancel_url'] = reverse_lazy('mortalityrecord-list')
         return context
 
+class MortalityAlertListView(LoginRequiredMixin, ListView):
+    model = MortalityAlert
+    template_name = 'core/mortalityalert_list.html'
+    context_object_name = 'alerts'
+    ordering = ['-alert_date']
+
+
+class MortalityAlertDetailView(LoginRequiredMixin, DetailView):
+    model = MortalityAlert
+    template_name = 'core/mortalityalert_detail.html'
+    context_object_name = 'alert'
+
+
+class MortalityAlertCreateView(LoginRequiredMixin, CreateView):
+    model = MortalityAlert
+    template_name = 'core/form.html'
+    fields = ['mortality_record', 'threshold_exceeded', 'notified_by',
+              'notified_persons', 'response_action', 'response_by',
+              'response_at', 'resolved', 'resolved_at', 'notes']
+    success_url = reverse_lazy('mortalityalert-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Mortality Alert Response'
+        context['cancel_url'] = reverse_lazy('mortalityalert-list')
+        return context
 
 class DrugStockListView(LoginRequiredMixin, ListView):
     model = DrugStock
@@ -480,18 +573,25 @@ class DrugPurchaseOrderDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'drug_order'
 
 
-class DrugPurchaseOrderCreateView(LoginRequiredMixin, CreateView):
-    model = DrugPurchaseOrder
-    template_name = 'core/form.html'
-    fields = ['supplier', 'purchase_date', 'purchased_by',
-              'authorized_by', 'notes']
-    success_url = reverse_lazy('drugpurchaseorder-list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'New Drug Purchase Order'
-        context['cancel_url'] = reverse_lazy('drugpurchaseorder-list')
-        return context
+@login_required
+def drugpurchaseorder_create(request):
+    if request.method == 'POST':
+        form = DrugPurchaseOrderForm(request.POST)
+        formset = DrugPurchaseItemFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
+            order = form.save()
+            formset.instance = order
+            formset.save()
+            return redirect('drugpurchaseorder-list')
+    else:
+        form = DrugPurchaseOrderForm()
+        formset = DrugPurchaseItemFormSet()
+    return render(request, 'core/formset_form.html', {
+        'form': form,
+        'formset': formset,
+        'title': 'New Drug Purchase Order',
+        'cancel_url': reverse_lazy('drugpurchaseorder-list')
+    })
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -581,6 +681,60 @@ class CleaningLogCreateView(LoginRequiredMixin, CreateView):
         context['cancel_url'] = reverse_lazy('cleaninglog-list')
         return context
 
+class MaintenanceRepairListView(LoginRequiredMixin, ListView):
+    model = MaintenanceRepair
+    template_name = 'core/maintenancerepair_list.html'
+    context_object_name = 'repairs'
+    ordering = ['-assigned_date']
+
+
+class MaintenanceRepairDetailView(LoginRequiredMixin, DetailView):
+    model = MaintenanceRepair
+    template_name = 'core/maintenancerepair_detail.html'
+    context_object_name = 'repair'
+
+
+class MaintenanceRepairCreateView(LoginRequiredMixin, CreateView):
+    model = MaintenanceRepair
+    template_name = 'core/form.html'
+    fields = ['fault', 'assigned_to', 'assigned_by', 'assigned_date',
+              'repair_date', 'repair_description', 'materials_used',
+              'repair_cost', 'authorized_by', 'is_temporary_fix',
+              'repaired_by', 'notes']
+    success_url = reverse_lazy('maintenancerepair-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Repair'
+        context['cancel_url'] = reverse_lazy('maintenancerepair-list')
+        return context
+
+
+class MaintenanceConfirmationListView(LoginRequiredMixin, ListView):
+    model = MaintenanceConfirmation
+    template_name = 'core/maintenanceconfirmation_list.html'
+    context_object_name = 'confirmations'
+    ordering = ['-confirmed_at']
+
+
+class MaintenanceConfirmationDetailView(LoginRequiredMixin, DetailView):
+    model = MaintenanceConfirmation
+    template_name = 'core/maintenanceconfirmation_detail.html'
+    context_object_name = 'confirmation'
+
+
+class MaintenanceConfirmationCreateView(LoginRequiredMixin, CreateView):
+    model = MaintenanceConfirmation
+    template_name = 'core/form.html'
+    fields = ['repair', 'inspection_date', 'fault_resolved', 'confirmed_by',
+              'follow_up_required', 'follow_up_notes', 'notes']
+    success_url = reverse_lazy('maintenanceconfirmation-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Repair Confirmation'
+        context['cancel_url'] = reverse_lazy('maintenanceconfirmation-list')
+        return context
 
 class MaintenanceFaultListView(LoginRequiredMixin, ListView):
     model = MaintenanceFault
@@ -636,3 +790,218 @@ class ManureLogCreateView(LoginRequiredMixin, CreateView):
         context['title'] = 'Record Manure Log'
         context['cancel_url'] = reverse_lazy('manurelog-list')
         return context
+
+
+
+
+# ── EGG GRADING ──────────────────────────────────────────────────
+
+class EggGradingListView(LoginRequiredMixin, ListView):
+    model = EggGrading
+    template_name = 'core/egggrading_list.html'
+    context_object_name = 'gradings'
+    ordering = ['-grading_date']
+
+
+class EggGradingDetailView(LoginRequiredMixin, DetailView):
+    model = EggGrading
+    template_name = 'core/egggrading_detail.html'
+    context_object_name = 'grading'
+
+
+class EggGradingCreateView(LoginRequiredMixin, CreateView):
+    model = EggGrading
+    template_name = 'core/form.html'
+    fields = ['grading_date', 'whole_eggs', 'broken_eggs',
+              'graded_by', 'support_staff', 'notes']
+    success_url = reverse_lazy('egggrading-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Egg Grading'
+        context['cancel_url'] = reverse_lazy('egggrading-list')
+        return context
+
+
+# ── EGG STORAGE CONFIRMATION ─────────────────────────────────────
+
+class EggStorageConfirmationListView(LoginRequiredMixin, ListView):
+    model = EggStorageConfirmation
+    template_name = 'core/eggstorageconfirmation_list.html'
+    context_object_name = 'confirmations'
+    ordering = ['-confirmed_at']
+
+
+class EggStorageConfirmationDetailView(LoginRequiredMixin, DetailView):
+    model = EggStorageConfirmation
+    template_name = 'core/eggstorageconfirmation_detail.html'
+    context_object_name = 'confirmation'
+
+
+class EggStorageConfirmationCreateView(LoginRequiredMixin, CreateView):
+    model = EggStorageConfirmation
+    template_name = 'core/form.html'
+    fields = ['grading', 'whole_eggs_stored', 'broken_eggs_stored',
+              'confirmed_by', 'notes']
+    success_url = reverse_lazy('eggstorageconfirmation-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Egg Storage Confirmation'
+        context['cancel_url'] = reverse_lazy('eggstorageconfirmation-list')
+        return context
+
+
+# ── FLOCK PLACEMENT ───────────────────────────────────────────────
+
+class FlockPlacementListView(LoginRequiredMixin, ListView):
+    model = FlockPlacement
+    template_name = 'core/flockplacement_list.html'
+    context_object_name = 'placements'
+    ordering = ['-placement_date']
+
+
+class FlockPlacementDetailView(LoginRequiredMixin, DetailView):
+    model = FlockPlacement
+    template_name = 'core/flockplacement_detail.html'
+    context_object_name = 'placement'
+
+
+class FlockPlacementCreateView(LoginRequiredMixin, CreateView):
+    model = FlockPlacement
+    template_name = 'core/form.html'
+    fields = ['flock', 'supplier', 'quantity_received', 'cost_per_bird',
+              'placement_date', 'recorded_by', 'notes']
+    success_url = reverse_lazy('flockplacement-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Flock Placement'
+        context['cancel_url'] = reverse_lazy('flockplacement-list')
+        return context
+
+
+# ── PEN FEEDING SUPERVISION ───────────────────────────────────────
+
+class PenFeedingSupervisionListView(LoginRequiredMixin, ListView):
+    model = PenFeedingSupervision
+    template_name = 'core/penfeedingsupervision_list.html'
+    context_object_name = 'supervisions'
+    ordering = ['-supervised_at']
+
+
+class PenFeedingSupervisionDetailView(LoginRequiredMixin, DetailView):
+    model = PenFeedingSupervision
+    template_name = 'core/penfeedingsupervision_detail.html'
+    context_object_name = 'supervision'
+
+
+class PenFeedingSupervisionCreateView(LoginRequiredMixin, CreateView):
+    model = PenFeedingSupervision
+    template_name = 'core/form.html'
+    fields = ['feeding_activity', 'distribution_even', 'trough_condition',
+              'bird_behavior', 'confirmation_status', 'supervised_by', 'notes']
+    success_url = reverse_lazy('penfeedingsupervision-list')
+
+def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Feeding Supervision'
+        context['cancel_url'] = reverse_lazy('penfeedingsupervision-list')
+        return context
+
+
+# ── MORTALITY ALERT ───────────────────────────────────────────────
+
+class MortalityAlertListView(LoginRequiredMixin, ListView):
+    model = MortalityAlert
+    template_name = 'core/mortalityalert_list.html'
+    context_object_name = 'alerts'
+    ordering = ['-alert_date']
+
+
+class MortalityAlertDetailView(LoginRequiredMixin, DetailView):
+    model = MortalityAlert
+    template_name = 'core/mortalityalert_detail.html'
+    context_object_name = 'alert'
+
+
+@login_required
+def mortalityrecord_create(request):
+    if request.method == 'PMortalityAlertCreateViewOST':
+        form = MortalityRecordForm(request.POST)
+        formset = MortalityRecordItemFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
+            record = form.save()
+            formset.instance = record
+            formset.save()
+            return redirect('mortalityrecord-list')
+    else:
+        form = MortalityRecordForm()
+        formset = MortalityRecordItemFormSet()
+    return render(request, 'core/formset_form.html', {
+        'form': form,
+        'formset': formset,
+        'title': 'Record Mortality',
+        'cancel_url': reverse_lazy('mortalityrecord-list')
+    })
+
+
+# ── MAINTENANCE REPAIR ────────────────────────────────────────────
+
+class MaintenanceRepairListView(LoginRequiredMixin, ListView):
+    model = MaintenanceRepair
+    template_name = 'core/maintenancerepair_list.html'
+    context_object_name = 'repairs'
+    ordering = ['-assigned_date']
+
+
+class MaintenanceRepairDetailView(LoginRequiredMixin, DetailView):
+    model = MaintenanceRepair
+    template_name = 'core/maintenancerepair_detail.html'
+    context_object_name = 'repair'
+
+
+class MaintenanceRepairCreateView(LoginRequiredMixin, CreateView):
+    model = MaintenanceRepair
+    template_name = 'core/form.html'
+    fields = ['fault', 'assigned_to', 'assigned_by', 'assigned_date',
+              'repair_date', 'repair_description', 'materials_used',
+              'repair_cost', 'authorized_by', 'is_temporary_fix',
+              'repaired_by', 'notes']
+    success_url = reverse_lazy('maintenancerepair-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Repair'
+        context['cancel_url'] = reverse_lazy('maintenancerepair-list')
+        return context
+
+
+# ── MAINTENANCE CONFIRMATION ──────────────────────────────────────
+
+class MaintenanceConfirmationListView(LoginRequiredMixin, ListView):
+    model = MaintenanceConfirmation
+    template_name = 'core/maintenanceconfirmation_list.html'
+    context_object_name = 'confirmations'
+    ordering = ['-confirmed_at']
+
+
+class MaintenanceConfirmationDetailView(LoginRequiredMixin, DetailView):
+    model = MaintenanceConfirmation
+    template_name = 'core/maintenanceconfirmation_detail.html'
+    context_object_name = 'confirmation'
+
+
+class MaintenanceConfirmationCreateView(LoginRequiredMixin, CreateView):
+    model = MaintenanceConfirmation
+    template_name = 'core/form.html'
+    fields = ['repair', 'inspection_date', 'fault_resolved', 'confirmed_by',
+              'follow_up_required', 'follow_up_notes', 'notes']
+    success_url = reverse_lazy('maintenanceconfirmation-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Repair Confirmation'
+        context['cancel_url'] = reverse_lazy('maintenanceconfirmation-list')
+        return context
+

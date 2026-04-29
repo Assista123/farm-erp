@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Feeding Supervision — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Feeding Supervision</h4>
+
+<div class="card">
+    <div class="card-header">Details</div>
+    <div class="card-body">
+        <p><strong>Feeding Activity:</strong> {{ supervision.feeding_activity }}</p>
+        <p><strong>Distribution Even:</strong> {{ supervision.distribution_even|yesno:"Yes,No" }}</p>
+        <p><strong>Trough Condition:</strong> {{ supervision.get_trough_condition_display }}</p>
+        <p><strong>Bird Behavior:</strong> {{ supervision.get_bird_behavior_display }}</p>
+        <p><strong>Status:</strong>
+            {% if supervision.confirmation_status == 'confirmed' %}
+                <span class="badge bg-success">Confirmed</span>
+            {% elif supervision.confirmation_status == 'flagged' %}
+                <span class="badge bg-warning text-dark">Flagged</span>
+            {% else %}
+                <span class="badge bg-danger">Rejected</span>
+            {% endif %}
+        </p>
+        <p><strong>Supervised By:</strong> {{ supervision.supervised_by.full_name }}</p>
+        <p><strong>Supervised At:</strong> {{ supervision.supervised_at }}</p>
+        <p><strong>Notes:</strong> {{ supervision.notes|default:"—" }}</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Repair — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Repair — {{ repair.fault }}</h4>
+
+<div class="card">
+    <div class="card-header">Repair Details</div>
+    <div class="card-body">
+        <p><strong>Fault:</strong> {{ repair.fault }}</p>
+        <p><strong>Assigned To:</strong> {{ repair.assigned_to.full_name }}</p>
+        <p><strong>Assigned By:</strong> {{ repair.assigned_by.full_name }}</p>
+        <p><strong>Assigned Date:</strong> {{ repair.assigned_date }}</p>
+        <p><strong>Repair Date:</strong> {{ repair.repair_date|default:"Not yet done" }}</p>
+        <p><strong>Description:</strong> {{ repair.repair_description|default:"—" }}</p>
+        <p><strong>Materials Used:</strong> {{ repair.materials_used|default:"—" }}</p>
+        <p><strong>Cost:</strong> {{ repair.repair_cost|default:"—" }}</p>
+        <p><strong>Authorized By:</strong> {{ repair.authorized_by.full_name|default:"—" }}</p>
+        <p><strong>Temporary Fix:</strong> {{ repair.is_temporary_fix|yesno:"Yes,No" }}</p>
+        <p><strong>Repaired By:</strong> {{ repair.repaired_by.full_name|default:"—" }}</p>
+        <p><strong>Notes:</strong> {{ repair.notes|default:"—" }}</p>
+    </div>
+</div>
+{% endblock %}

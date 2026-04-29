@@ -65,7 +65,11 @@
                         <i class="bi bi-truck"></i> Suppliers
                     </a>
                 </li>
-
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'flockplacement-list' %}">
+                        <i class="bi bi-box-arrow-in-down"></i> Flock Placements
+                    </a>
+                </li>
                 <li class="nav-item mt-3 mb-1">
                     <span class="text-muted small px-3">FEED</span>
                 </li>
@@ -94,6 +98,11 @@
                         <i class="bi bi-cup-straw"></i> Feeding
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'penfeedingsupervision-list' %}">
+                        <i class="bi bi-clipboard-check"></i> Feeding Supervision
+                    </a>
+                </li>
 
                 <li class="nav-item mt-3 mb-1">
                     <span class="text-muted small px-3">HEALTH</span>
@@ -109,6 +118,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'mortalityalert-list' %}">
+                        <i class="bi bi-bell"></i> Mortality Alerts
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'drugstock-list' %}">
                         <i class="bi bi-capsule"></i> Drug Stock
                     </a>
@@ -121,9 +135,21 @@
                 <li class="nav-item mt-3 mb-1">
                     <span class="text-muted small px-3">PRODUCTION</span>
                 </li>
+                 <span class="text-muted small px-3">PRODUCTION</span>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'eggcollection-list' %}">
                         <i class="bi bi-egg-fill"></i> Egg Collection
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'egggrading-list' %}">
+                        <i class="bi bi-funnel"></i> Egg Grading
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'eggstorageconfirmation-list' %}">
+                        <i class="bi bi-box-seam"></i> Storage Confirmation
                     </a>
                 </li>
                 <li class="nav-item">
@@ -131,6 +157,7 @@
                         <i class="bi bi-arrow-up-right-square"></i> Egg Transfer
                     </a>
                 </li>
+                
 
                 <li class="nav-item mt-3 mb-1">
                     <span class="text-muted small px-3">OPERATIONS</span>
@@ -143,6 +170,16 @@
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'maintenancefault-list' %}">
                         <i class="bi bi-tools"></i> Maintenance
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'maintenancerepair-list' %}">
+                        <i class="bi bi-wrench"></i> Repairs
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'maintenanceconfirmation-list' %}">
+                        <i class="bi bi-patch-check"></i> Repair Confirmations
                     </a>
                 </li>
                 <li class="nav-item">

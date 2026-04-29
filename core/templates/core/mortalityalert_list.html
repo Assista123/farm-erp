@@ -1,0 +1,53 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Mortality Alerts — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Mortality Alerts</h4>
+    <a href="{% url 'mortalityalert-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Record Alert Response
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Pen</th>
+                    <th>Threshold Exceeded</th>
+                    <th>Response Action</th>
+                    <th>Resolved</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alert in alerts %}
+                <tr>
+                    <td>{{ alert.alert_date }}</td>
+                    <td>{{ alert.mortality_record.pen.name }}</td>
+                    <td>{{ alert.threshold_exceeded }}</td>
+                    <td>{{ alert.get_response_action_display }}</td>
+                    <td>
+                        {% if alert.resolved %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'mortalityalert-detail' alert.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No alerts recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

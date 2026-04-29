@@ -1,0 +1,55 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Storage Confirmations — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Egg Storage Confirmations</h4>
+    <a href="{% url 'eggstorageconfirmation-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Record Confirmation
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Grading Date</th>
+                    <th>Total Stored</th>
+                    <th>Whole</th>
+                    <th>Broken</th>
+                    <th>Discrepancy</th>
+                    <th>Confirmed By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for confirmation in confirmations %}
+                <tr>
+                    <td>{{ confirmation.grading.grading_date }}</td>
+                    <td>{{ confirmation.total_stored }}</td>
+                    <td>{{ confirmation.whole_eggs_stored }}</td>
+                    <td>{{ confirmation.broken_eggs_stored }}</td>
+                    <td>
+                        {% if confirmation.storage_discrepancy != 0 %}
+                            <span class="badge bg-danger">{{ confirmation.storage_discrepancy }}</span>
+                        {% else %}
+                            <span class="badge bg-success">0</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ confirmation.confirmed_by.full_name }}</td>
+                    <td>
+                        <a href="{% url 'eggstorageconfirmation-detail' confirmation.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">No storage confirmations found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

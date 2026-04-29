@@ -1,0 +1,49 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Flock Placements — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Flock Placements</h4>
+    <a href="{% url 'flockplacement-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Record Placement
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Flock</th>
+                    <th>Supplier</th>
+                    <th>Quantity</th>
+                    <th>Cost Per Bird</th>
+                    <th>Total Cost</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for placement in placements %}
+                <tr>
+                    <td>{{ placement.placement_date }}</td>
+                    <td>{{ placement.flock }}</td>
+                    <td>{{ placement.supplier.name }}</td>
+                    <td>{{ placement.quantity_received }}</td>
+                    <td>{{ placement.cost_per_bird }}</td>
+                    <td>{{ placement.total_cost }}</td>
+                    <td>
+                        <a href="{% url 'flockplacement-detail' placement.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No placements recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

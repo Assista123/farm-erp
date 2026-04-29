@@ -1,0 +1,57 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Feeding Supervisions — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Feeding Supervisions</h4>
+    <a href="{% url 'penfeedingsupervision-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Record Supervision
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Feeding Activity</th>
+                    <th>Distribution Even</th>
+                    <th>Trough Condition</th>
+                    <th>Bird Behavior</th>
+                    <th>Status</th>
+                    <th>Supervised By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for supervision in supervisions %}
+                <tr>
+                    <td>{{ supervision.feeding_activity }}</td>
+                    <td>{{ supervision.distribution_even|yesno:"Yes,No" }}</td>
+                    <td>{{ supervision.get_trough_condition_display }}</td>
+                    <td>{{ supervision.get_bird_behavior_display }}</td>
+                    <td>
+                        {% if supervision.confirmation_status == 'confirmed' %}
+                            <span class="badge bg-success">Confirmed</span>
+                        {% elif supervision.confirmation_status == 'flagged' %}
+                            <span class="badge bg-warning text-dark">Flagged</span>
+                        {% else %}
+                            <span class="badge bg-danger">Rejected</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ supervision.supervised_by.full_name }}</td>
+                    <td>
+                        <a href="{% url 'penfeedingsupervision-detail' supervision.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No supervisions recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

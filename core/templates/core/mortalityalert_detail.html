@@ -1,0 +1,24 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Mortality Alert — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Mortality Alert — {{ alert.mortality_record.pen.name }}</h4>
+
+<div class="card">
+    <div class="card-header">Alert Details</div>
+    <div class="card-body">
+        <p><strong>Alert Date:</strong> {{ alert.alert_date }}</p>
+        <p><strong>Pen:</strong> {{ alert.mortality_record.pen.name }}</p>
+        <p><strong>Threshold Exceeded:</strong> {{ alert.threshold_exceeded }} birds</p>
+        <p><strong>Notified By:</strong> {{ alert.notified_by.full_name }}</p>
+        <p><strong>Notified Persons:</strong> {{ alert.notified_persons }}</p>
+        <p><strong>Response Action:</strong> {{ alert.get_response_action_display }}</p>
+        <p><strong>Response By:</strong> {{ alert.response_by.full_name|default:"—" }}</p>
+        <p><strong>Response At:</strong> {{ alert.response_at|default:"—" }}</p>
+        <p><strong>Resolved:</strong> {{ alert.resolved|yesno:"Yes,No" }}</p>
+        <p><strong>Resolved At:</strong> {{ alert.resolved_at|default:"—" }}</p>
+        <p><strong>Notes:</strong> {{ alert.notes|default:"—" }}</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }} — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{{ title }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <!-- Parent form -->
+                    {{ form|crispy }}
+
+                    <hr class="my-4">
+
+                    <!-- Inline formset -->
+                    <h6 class="text-success mb-3">Items</h6>
+                    {{ formset.management_form }}
+
+                    <div id="formset-container">
+                        {% for item_form in formset %}
+                            <div class="row g-2">
+                                {% for field in item_form.visible_fields %}
+                                <div class="col-12 col-sm-6 col-md-3 mb-2">
+                                    <label class="form-label small">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger small">{{ field.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                                {% for hidden in item_form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+                            </div>
+                            {% if formset.can_delete %}
+                            <div class="text-end">
+                                <label class="text-danger small">
+                                    {{ item_form.DELETE }} Remove this item
+                                </label>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Save
+                        </button>
+                        <a href="{{ cancel_url }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

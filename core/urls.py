@@ -26,19 +26,24 @@ urlpatterns = [
     path('flocks/<int:pk>/', views.FlockDetailView.as_view(), name='flock-detail'),
     path('flocks/<int:pk>/edit/', views.FlockUpdateView.as_view(), name='flock-update'),
 
+    # Supplier
     path('suppliers/', views.SupplierListView.as_view(), name='supplier-list'),
     path('suppliers/add/', views.SupplierCreateView.as_view(), name='supplier-create'),
     path('suppliers/<int:pk>/', views.SupplierDetailView.as_view(), name='supplier-detail'),
     path('suppliers/<int:pk>/edit/', views.SupplierUpdateView.as_view(), name='supplier-update'),
 
+    path('flock-placements/', views.FlockPlacementListView.as_view(), name='flockplacement-list'),
+    path('flock-placements/add/', views.FlockPlacementCreateView.as_view(), name='flockplacement-create'),
+    path('flock-placements/<int:pk>/', views.FlockPlacementDetailView.as_view(), name='flockplacement-detail'),
+
     # Feed
     path('feed/procurement/', views.FeedProcurementListView.as_view(), name='feedprocurement-list'),
-    path('feed/procurement/add/', views.FeedProcurementCreateView.as_view(), name='feedprocurement-create'),
+    path('feed/procurement/add/', views.feedprocurement_create, name='feedprocurement-create'),
     path('feed/procurement/<int:pk>/', views.FeedProcurementDetailView.as_view(), name='feedprocurement-detail'),
     path('feed/procurement/<int:pk>/edit/', views.FeedProcurementUpdateView.as_view(), name='feedprocurement-update'),
 
     path('feed/deliveries/', views.FeedDeliveryListView.as_view(), name='feeddelivery-list'),
-    path('feed/deliveries/add/', views.FeedDeliveryCreateView.as_view(), name='feeddelivery-create'),
+    path('feed/deliveries/add/', views.feeddelivery_create, name='feeddelivery-create'),
     path('feed/deliveries/<int:pk>/', views.FeedDeliveryDetailView.as_view(), name='feeddelivery-detail'),
     path('feed/deliveries/<int:pk>/edit/', views.FeedDeliveryUpdateView.as_view(), name='feeddelivery-update'),
 
@@ -46,27 +51,36 @@ urlpatterns = [
     path('feed/stock/<int:pk>/', views.FeedStockDetailView.as_view(), name='feedstock-detail'),
 
     path('feed/issuance/', views.FeedIssuanceListView.as_view(), name='feedissuance-list'),
-    path('feed/issuance/add/', views.FeedIssuanceCreateView.as_view(), name='feedissuance-create'),
+    path('feed/issuance/add/', views.feedissuance_create, name='feedissuance-create'),
     path('feed/issuance/<int:pk>/', views.FeedIssuanceDetailView.as_view(), name='feedissuance-detail'),
 
     path('feed/feeding/', views.PenFeedingActivityListView.as_view(), name='penfeedingactivity-list'),
-    path('feed/feeding/add/', views.PenFeedingActivityCreateView.as_view(), name='penfeedingactivity-create'),
+    path('feed/feeding/add/', views.penfeedingactivity_create, name='penfeedingactivity-create'),
     path('feed/feeding/<int:pk>/', views.PenFeedingActivityDetailView.as_view(), name='penfeedingactivity-detail'),
+
+    path('feed/supervision/', views.PenFeedingSupervisionListView.as_view(), name='penfeedingsupervision-list'),
+    path('feed/supervision/add/', views.PenFeedingSupervisionCreateView.as_view(), name='penfeedingsupervision-create'),
+    path('feed/supervision/<int:pk>/', views.PenFeedingSupervisionDetailView.as_view(), name='penfeedingsupervision-detail'),
 
     # Health
     path('water-treatments/', views.WaterTreatmentLogListView.as_view(), name='watertreatmentlog-list'),
     path('water-treatments/add/', views.WaterTreatmentLogCreateView.as_view(), name='watertreatmentlog-create'),
     path('water-treatments/<int:pk>/', views.WaterTreatmentLogDetailView.as_view(), name='watertreatmentlog-detail'),
+    
     path('mortality/', views.MortalityRecordListView.as_view(), name='mortalityrecord-list'),
-    path('mortality/add/', views.MortalityRecordCreateView.as_view(), name='mortalityrecord-create'),
+    path('mortality/add/', views.mortalityrecord_create, name='mortalityrecord-create'),
     path('mortality/<int:pk>/', views.MortalityRecordDetailView.as_view(), name='mortalityrecord-detail'),
 
     path('drug-stock/', views.DrugStockListView.as_view(), name='drugstock-list'),
     path('drug-stock/<int:pk>/', views.DrugStockDetailView.as_view(), name='drugstock-detail'),
 
     path('drug-purchases/', views.DrugPurchaseOrderListView.as_view(), name='drugpurchaseorder-list'),
-    path('drug-purchases/add/', views.DrugPurchaseOrderCreateView.as_view(), name='drugpurchaseorder-create'),
+    path('drug-purchases/add/', views.drugpurchaseorder_create, name='drugpurchaseorder-create'),
     path('drug-purchases/<int:pk>/', views.DrugPurchaseOrderDetailView.as_view(), name='drugpurchaseorder-detail'),
+
+    path('mortality/alerts/', views.MortalityAlertListView.as_view(), name='mortalityalert-list'),
+    path('mortality/alerts/add/', views.MortalityAlertCreateView.as_view(), name='mortalityalert-create'),
+    path('mortality/alerts/<int:pk>/', views.MortalityAlertDetailView.as_view(), name='mortalityalert-detail'),
 
     # Production
     path('eggs/collection/', views.EggCollectionListView.as_view(), name='eggcollection-list'),
@@ -77,6 +91,16 @@ urlpatterns = [
     path('eggs/transfer/add/', views.EggTransferCreateView.as_view(), name='eggtransfer-create'),
     path('eggs/transfer/<int:pk>/', views.EggTransferDetailView.as_view(), name='eggtransfer-detail'),
 
+    # Egg Grading
+    path('eggs/grading/', views.EggGradingListView.as_view(), name='egggrading-list'),
+    path('eggs/grading/add/', views.EggGradingCreateView.as_view(), name='egggrading-create'),
+    path('eggs/grading/<int:pk>/', views.EggGradingDetailView.as_view(), name='egggrading-detail'),
+
+    # Egg Storage Confirmation
+    path('eggs/storage/', views.EggStorageConfirmationListView.as_view(), name='eggstorageconfirmation-list'),
+    path('eggs/storage/add/', views.EggStorageConfirmationCreateView.as_view(), name='eggstorageconfirmation-create'),
+    path('eggs/storage/<int:pk>/', views.EggStorageConfirmationDetailView.as_view(), name='eggstorageconfirmation-detail'),
+
     # Operations
     path('cleaning/', views.CleaningLogListView.as_view(), name='cleaninglog-list'),
     path('cleaning/add/', views.CleaningLogCreateView.as_view(), name='cleaninglog-create'),
@@ -85,6 +109,14 @@ urlpatterns = [
     path('maintenance/', views.MaintenanceFaultListView.as_view(), name='maintenancefault-list'),
     path('maintenance/add/', views.MaintenanceFaultCreateView.as_view(), name='maintenancefault-create'),
     path('maintenance/<int:pk>/', views.MaintenanceFaultDetailView.as_view(), name='maintenancefault-detail'),
+
+    path('maintenance/repairs/', views.MaintenanceRepairListView.as_view(), name='maintenancerepair-list'),
+    path('maintenance/repairs/add/', views.MaintenanceRepairCreateView.as_view(), name='maintenancerepair-create'),
+    path('maintenance/repairs/<int:pk>/', views.MaintenanceRepairDetailView.as_view(), name='maintenancerepair-detail'),
+
+    path('maintenance/confirmations/', views.MaintenanceConfirmationListView.as_view(), name='maintenanceconfirmation-list'),
+    path('maintenance/confirmations/add/', views.MaintenanceConfirmationCreateView.as_view(), name='maintenanceconfirmation-create'),
+    path('maintenance/confirmations/<int:pk>/', views.MaintenanceConfirmationDetailView.as_view(), name='maintenanceconfirmation-detail'),
 
     path('manure/', views.ManureLogListView.as_view(), name='manurelog-list'),
     path('manure/add/', views.ManureLogCreateView.as_view(), name='manurelog-create'),

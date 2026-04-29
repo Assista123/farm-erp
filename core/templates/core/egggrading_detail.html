@@ -1,0 +1,70 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Egg Grading — {{ grading.grading_date }} — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Egg Grading — {{ grading.grading_date }}</h4>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-success">{{ grading.whole_eggs }}</div>
+            <div class="text-muted small">Whole Eggs</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-danger">{{ grading.broken_eggs }}</div>
+            <div class="text-muted small">Broken Eggs</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-secondary">{{ grading.total_graded }}</div>
+            <div class="text-muted small">Total Graded</div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Grading Details</div>
+    <div class="card-body">
+        <p><strong>Grading Date:</strong> {{ grading.grading_date }}</p>
+        <p><strong>Total Collected (all pens):</strong> {{ grading.total_collected }}</p>
+        <p><strong>Total Graded:</strong> {{ grading.total_graded }}</p>
+        <p><strong>Discrepancy:</strong>
+            {% if grading.grading_discrepancy != 0 %}
+                <span class="text-danger">{{ grading.grading_discrepancy }} eggs unaccounted for</span>
+            {% else %}
+                <span class="text-success">None</span>
+            {% endif %}
+        </p>
+        <p><strong>Graded By:</strong> {{ grading.graded_by.full_name }}</p>
+        <p><strong>Support Staff:</strong> {{ grading.support_staff.full_name|default:"—" }}</p>
+        <p><strong>Notes:</strong> {{ grading.notes|default:"—" }}</p>
+    </div>
+</div>
+
+{% if grading.storage_confirmation %}
+<div class="card">
+    <div class="card-header">Storage Confirmation</div>
+    <div class="card-body">
+        <p><strong>Whole Eggs Stored:</strong> {{ grading.storage_confirmation.whole_eggs_stored }}</p>
+        <p><strong>Broken Eggs Stored:</strong> {{ grading.storage_confirmation.broken_eggs_stored }}</p>
+        <p><strong>Total Stored:</strong> {{ grading.storage_confirmation.total_stored }}</p>
+        <p><strong>Storage Discrepancy:</strong>
+            {% if grading.storage_confirmation.storage_discrepancy != 0 %}
+                <span class="text-danger">{{ grading.storage_confirmation.storage_discrepancy }}</span>
+            {% else %}
+                <span class="text-success">None</span>
+            {% endif %}
+        </p>
+        <p><strong>Confirmed By:</strong> {{ grading.storage_confirmation.confirmed_by.full_name }}</p>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle"></i> Storage not yet confirmed for this grading.
+</div>
+{% endif %}
+{% endblock %}
