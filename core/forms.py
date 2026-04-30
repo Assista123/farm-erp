@@ -28,7 +28,9 @@ FeedProcurementItemFormSet = inlineformset_factory(
     FeedProcurementItem,
     fields=['feed_type', 'quantity_ordered', 'bag_size_kg', 'price_per_bag'],
     extra=2,
-    can_delete=True
+    can_delete=True,
+    min_num=0,
+    validate_min=False
 )
 
 
@@ -50,7 +52,9 @@ FeedDeliveryItemFormSet = inlineformset_factory(
     FeedDeliveryItem,
     fields=['feed_type', 'quantity_received', 'quantity_rejected', 'rejection_reason'],
     extra=2,
-    can_delete=True
+    can_delete=True,
+    min_num=0,
+    validate_min=False
 )
 
 
@@ -71,7 +75,9 @@ FeedIssuanceItemFormSet = inlineformset_factory(
     FeedIssuanceItem,
     fields=['feed_type', 'bags_issued'],
     extra=2,
-    can_delete=True
+    can_delete=True,
+    min_num=0,
+    validate_min=False
 )
 
 
@@ -92,7 +98,9 @@ PenFeedingActivityItemFormSet = inlineformset_factory(
     PenFeedingActivityItem,
     fields=['feed_type', 'bags_used', 'empty_bags_returned'],
     extra=2,
-    can_delete=True
+    can_delete=True,
+    min_num=0,
+    validate_min=False
 )
 
 
@@ -114,7 +122,9 @@ DrugPurchaseItemFormSet = inlineformset_factory(
     fields=['drug', 'quantity_purchased', 'quantity_unit', 'cost_per_unit',
             'expiry_date', 'batch_number'],
     extra=2,
-    can_delete=True
+    can_delete=True,
+    min_num=0,
+    validate_min=False
 )
 
 
@@ -137,6 +147,7 @@ MortalityRecordItemFormSet = inlineformset_factory(
     fields=['count', 'condition', 'disposal_method', 'sale_amount',
             'buyer_name', 'suspected_cause'],
     extra=2,
-    can_delete=True
+    can_delete=True,
+    validate_min=False,
+    min_num=0
 )
-

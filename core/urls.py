@@ -62,6 +62,16 @@ urlpatterns = [
     path('feed/supervision/add/', views.PenFeedingSupervisionCreateView.as_view(), name='penfeedingsupervision-create'),
     path('feed/supervision/<int:pk>/', views.PenFeedingSupervisionDetailView.as_view(), name='penfeedingsupervision-detail'),
 
+    # Feed Types
+    path('feed-types/', views.FeedTypeListView.as_view(), name='feedtype-list'),
+    path('feed-types/add/', views.FeedTypeCreateView.as_view(), name='feedtype-create'),
+    path('feed-types/<int:pk>/edit/', views.FeedTypeUpdateView.as_view(), name='feedtype-update'),
+
+    # Drugs and Supplements
+    path('drugs/', views.DrugAndSupplementListView.as_view(), name='drugandsupplement-list'),
+    path('drugs/add/', views.DrugAndSupplementCreateView.as_view(), name='drugandsupplement-create'),
+    path('drugs/<int:pk>/edit/', views.DrugAndSupplementUpdateView.as_view(), name='drugandsupplement-update'),
+
     # Health
     path('water-treatments/', views.WaterTreatmentLogListView.as_view(), name='watertreatmentlog-list'),
     path('water-treatments/add/', views.WaterTreatmentLogCreateView.as_view(), name='watertreatmentlog-create'),

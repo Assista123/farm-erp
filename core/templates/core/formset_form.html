@@ -50,6 +50,22 @@
                         {% endfor %}
                     </div>
 
+                    {% if form.errors %}
+                    <div class="alert alert-danger mt-3">
+                        <strong>Please fix the following errors:</strong>
+                        {{ form.errors }}
+                    </div>
+                    {% endif %}
+
+                    {% if formset.errors %}
+                    <div class="alert alert-danger mt-3">
+                        <strong>Item errors:</strong>
+                        {% for error in formset.errors %}
+                            {% if error %}{{ error }}{% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-success">
                             <i class="bi bi-check-circle"></i> Save

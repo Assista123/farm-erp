@@ -22,7 +22,7 @@ from .forms import (
 
 from .models import (
     FarmUnit, Pen, Worker, Flock, Supplier,
-    FlockPlacement, FeedProcurement, FeedDelivery, FeedStock,
+    FlockPlacement, FeedType, DrugAndSupplement, FeedProcurement, FeedDelivery, FeedStock,
     FeedIssuance, PenFeedingActivity, PenFeedingSupervision,
     WaterTreatmentLog, MortalityRecord, MortalityAlert, DrugStock,
     DrugPurchaseOrder, EggCollection, EggGrading,
@@ -244,6 +244,7 @@ class SupplierCreateView(LoginRequiredMixin, CreateView):
         context['title'] = 'Add Supplier'
         context['cancel_url'] = reverse_lazy('supplier-list')
         return context
+
 class SupplierUpdateView(LoginRequiredMixin, UpdateView):
     model = Supplier
     template_name = 'core/form.html'
@@ -282,6 +283,69 @@ class FlockPlacementCreateView(LoginRequiredMixin, CreateView):
         context['cancel_url'] = reverse_lazy('flockplacement-list')
         return context
 
+class FeedTypeListView(LoginRequiredMixin, ListView):
+    model = FeedType
+    template_name = 'core/feedtype_list.html'
+    context_object_name = 'feed_types'
+
+
+class FeedTypeCreateView(LoginRequiredMixin, CreateView):
+    model = FeedType
+    template_name = 'core/form.html'
+    fields = ['name', 'description', 'is_active']
+    success_url = reverse_lazy('feedtype-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Add Feed Type'
+        context['cancel_url'] = reverse_lazy('feedtype-list')
+        return context
+
+
+class FeedTypeUpdateView(LoginRequiredMixin, UpdateView):
+    model = FeedType
+    template_name = 'core/form.html'
+    fields = ['name', 'description', 'is_active']
+    success_url = reverse_lazy('feedtype-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Edit Feed Type'
+        context['cancel_url'] = reverse_lazy('feedtype-list')
+        return context
+
+
+class DrugAndSupplementListView(LoginRequiredMixin, ListView):
+    model = DrugAndSupplement
+    template_name = 'core/drugandsupplement_list.html'
+    context_object_name = 'drugs'
+
+
+class DrugAndSupplementCreateView(LoginRequiredMixin, CreateView):
+    model = DrugAndSupplement
+    template_name = 'core/form.html'
+    fields = ['name', 'treatment_type', 'default_dosage_unit', 'manufacturer', 'is_active']
+    success_url = reverse_lazy('drugandsupplement-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Add Drug or Supplement'
+        context['cancel_url'] = reverse_lazy('drugandsupplement-list')
+        return context
+
+
+class DrugAndSupplementUpdateView(LoginRequiredMixin, UpdateView):
+    model = DrugAndSupplement
+    template_name = 'core/form.html'
+    fields = ['name', 'treatment_type', 'default_dosage_unit', 'manufacturer', 'is_active']
+    success_url = reverse_lazy('drugandsupplement-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Edit Drug or Supplement'
+        context['cancel_url'] = reverse_lazy('drugandsupplement-list')
+        return context
+
 
 # ══════════════════════════════════════════════════════════════════
 # FEED
@@ -310,6 +374,13 @@ def feedprocurement_create(request):
             formset.instance = procurement
             formset.save()
             return redirect('feedprocurement-list')
+        else:
+            return render(request, 'core/formset_form.html', {
+                'form': form,
+                'formset': formset,
+                'title': 'New Feed Order',
+                'cancel_url': reverse_lazy('feedprocurement-list')
+            })
     else:
         form = FeedProcurementForm()
         formset = FeedProcurementItemFormSet()
@@ -357,6 +428,13 @@ def feeddelivery_create(request):
             formset.instance = delivery
             formset.save()
             return redirect('feeddelivery-list')
+        else:
+            return render(request, 'core/formset_form.html', {
+                'form': form,
+                'formset': formset,
+                'title': 'Record Feed Delivery',
+                'cancel_url': reverse_lazy('feeddelivery-list')
+            })
     else:
         form = FeedDeliveryForm()
         formset = FeedDeliveryItemFormSet()
@@ -417,6 +495,13 @@ def feedissuance_create(request):
             formset.instance = issuance
             formset.save()
             return redirect('feedissuance-list')
+        else:
+            return render(request, 'core/formset_form.html', {
+                'form': form,
+                'formset': formset,
+                'title': 'Record Feed Issuance',
+                'cancel_url': reverse_lazy('feedissuance-list')
+            })
     else:
         form = FeedIssuanceForm()
         formset = FeedIssuanceItemFormSet()
@@ -451,6 +536,13 @@ def penfeedingactivity_create(request):
             formset.instance = activity
             formset.save()
             return redirect('penfeedingactivity-list')
+        else:
+            return render(request, 'core/formset_form.html', {
+                'form': form,
+                'formset': formset,
+                'title': 'Record Feeding Activity',
+                'cancel_url': reverse_lazy('penfeedingactivity-list')
+            })
     else:
         form = PenFeedingActivityForm()
         formset = PenFeedingActivityItemFormSet()
@@ -583,6 +675,13 @@ def drugpurchaseorder_create(request):
             formset.instance = order
             formset.save()
             return redirect('drugpurchaseorder-list')
+        else:
+            return render(request, 'core/formset_form.html', {
+                'form': form,
+                'formset': formset,
+                'title': 'New Drug Purchase Order',
+                'cancel_url': reverse_lazy('drugpurchaseorder-list')
+            })
     else:
         form = DrugPurchaseOrderForm()
         formset = DrugPurchaseItemFormSet()
@@ -927,7 +1026,7 @@ class MortalityAlertDetailView(LoginRequiredMixin, DetailView):
 
 @login_required
 def mortalityrecord_create(request):
-    if request.method == 'PMortalityAlertCreateViewOST':
+    if request.method == 'POST':
         form = MortalityRecordForm(request.POST)
         formset = MortalityRecordItemFormSet(request.POST)
         if form.is_valid() and formset.is_valid():
@@ -935,6 +1034,14 @@ def mortalityrecord_create(request):
             formset.instance = record
             formset.save()
             return redirect('mortalityrecord-list')
+        else:
+            # Form or formset is invalid — re-render with errors
+            return render(request, 'core/formset_form.html', {
+                'form': form,
+                'formset': formset,
+                'title': 'Record Mortality',
+                'cancel_url': reverse_lazy('mortalityrecord-list')
+            })
     else:
         form = MortalityRecordForm()
         formset = MortalityRecordItemFormSet()

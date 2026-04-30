@@ -1,0 +1,49 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Feed Types — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Feed Types</h4>
+    <a href="{% url 'feedtype-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Add Feed Type
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feed_type in feed_types %}
+                <tr>
+                    <td>{{ feed_type.get_name_display }}</td>
+                    <td>{{ feed_type.description|default:"—" }}</td>
+                    <td>
+                        {% if feed_type.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'feedtype-update' feed_type.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">No feed types found. Add one to get started.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -101,13 +101,13 @@ class Supplier(models.Model):
     ]
 
     name = models.CharField(max_length=200)
-    suuplier_type = models.CharField(max_length=20, choices=SUPPLIER_TYPE_CHOICES)
+    supplier_type = models.CharField(max_length=20, choices=SUPPLIER_TYPE_CHOICES)
     phone = models.CharField(max_length=20, blank=True)
     address = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.name} ({self.get__supplier_type_display()})"
+        return f"{self.name} ({self.get_supplier_type_display()})"
 
 
 # FlockPlacement Model
