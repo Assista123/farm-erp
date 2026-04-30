@@ -45,14 +45,10 @@
                         <i class="bi bi-building"></i> Farm Units
                     </a>
                 </li>
+               
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'pen-list' %}">
                         <i class="bi bi-grid"></i> Pens
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'worker-list' %}">
-                        <i class="bi bi-people"></i> Workers
                     </a>
                 </li>
                 <li class="nav-item">
@@ -70,6 +66,12 @@
                         <i class="bi bi-capsule-pill"></i> Drugs & Supplements
                     </a>
                 </li>
+                {% if is_manager_or_above %}
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'worker-list' %}">
+                        <i class="bi bi-people"></i> Workers
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'supplier-list' %}">
                         <i class="bi bi-truck"></i> Suppliers
@@ -80,9 +82,11 @@
                         <i class="bi bi-box-arrow-in-down"></i> Flock Placements
                     </a>
                 </li>
+                {% endif %}
                 <li class="nav-item mt-3 mb-1">
                     <span class="text-muted small px-3">FEED</span>
                 </li>
+                {% if is_manager_or_above %}
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'feedprocurement-list' %}">
                         <i class="bi bi-cart"></i> Procurement
@@ -92,6 +96,13 @@
                     <a class="nav-link text-dark" href="{% url 'feeddelivery-list' %}">
                         <i class="bi bi-box-seam"></i> Deliveries
                     </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'drugpurchaseorder-list' %}">
+                        <i class="bi bi-capsule"></i> Drug Purchases
+                    </a>
+                </li>
+                {% endif %}
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'feedstock-list' %}">
@@ -137,11 +148,7 @@
                         <i class="bi bi-capsule"></i> Drug Stock
                     </a>
                 </li>
-                 <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'drugpurchaseorder-list' %}">
-                        <i class="bi-capsule"></i> Drug Purchases
-                    </a>
-                 </li>
+               
                 <li class="nav-item mt-3 mb-1">
                     <span class="text-muted small px-3">PRODUCTION</span>
                 </li>

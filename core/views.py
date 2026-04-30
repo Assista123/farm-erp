@@ -7,7 +7,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from datetime import date
 from django.db.models import Sum, Count, F
-
+from .permissions import role_required, get_user_context
+from django.utils.decorators import method_decorator
 
 
 from .forms import (
@@ -61,6 +62,7 @@ def dashboard(request):
             is_high_mortality=True,
             date_found=today).count(),
     }
+    context.update(get_user_context(request.user))
     return render(request, 'core/dashboard.html', context)
 
 
@@ -79,7 +81,7 @@ class FarmUnitDetailView(LoginRequiredMixin, DetailView):
     template_name = 'core/farmunit_detail.html'
     context_object_name = 'farm_unit'
 
-
+@method_decorator([login_required, role_required('manager', 'director')], name='dispatch')
 class FarmUnitCreateView(LoginRequiredMixin, CreateView):
     model = FarmUnit
     template_name = 'core/form.html'
@@ -92,7 +94,7 @@ class FarmUnitCreateView(LoginRequiredMixin, CreateView):
         context['cancel_url'] = reverse_lazy('farmunit-list')
         return context
 
-
+@method_decorator([login_required, role_required('manager', 'director')], name='dispatch')
 class FarmUnitUpdateView(LoginRequiredMixin, UpdateView):
     model = FarmUnit
     template_name = 'core/form.html'
@@ -155,6 +157,7 @@ class WorkerDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'worker'
 
 
+@method_decorator([login_required, role_required('manager', 'director')], name='dispatch')
 class WorkerCreateView(LoginRequiredMixin, CreateView):
     model = Worker
     template_name = 'core/form.html'
@@ -167,7 +170,7 @@ class WorkerCreateView(LoginRequiredMixin, CreateView):
         context['cancel_url'] = reverse_lazy('worker-list')
         return context
 
-
+@method_decorator([login_required, role_required('manager', 'director')], name='dispatch')
 class WorkerUpdateView(LoginRequiredMixin, UpdateView):
     model = Worker
     template_name = 'core/form.html'
@@ -193,7 +196,7 @@ class FlockDetailView(LoginRequiredMixin, DetailView):
     template_name = 'core/flock_detail.html'
     context_object_name = 'flock'
 
-
+@method_decorator([login_required, role_required('manager', 'director')], name='dispatch')
 class FlockCreateView(LoginRequiredMixin, CreateView):
     model = Flock
     template_name = 'core/form.html'
@@ -207,6 +210,7 @@ class FlockCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
+@method_decorator([login_required, role_required('manager', 'director')], name='dispatch')
 class FlockUpdateView(LoginRequiredMixin, UpdateView):
     model = Flock
     template_name = 'core/form.html'
@@ -365,6 +369,7 @@ class FeedProcurementDetailView(LoginRequiredMixin, DetailView):
 
 
 @login_required
+@role_required('manager', 'director')
 def feedprocurement_create(request):
     if request.method == 'POST':
         form = FeedProcurementForm(request.POST)
@@ -665,6 +670,7 @@ class DrugPurchaseOrderDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'drug_order'
 
 
+@role_required('manager', 'director')
 @login_required
 def drugpurchaseorder_create(request):
     if request.method == 'POST':
