@@ -203,6 +203,36 @@
                         <i class="bi bi-recycle"></i> Manure
                     </a>
                 </li>
+                {% if is_supervisor_or_above %}
+                <li class="nav-item mt-3 mb-1">
+                    <span class="text-muted small px-3">REPORTS</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'report-feed-stock' %}">
+                        <i class="bi bi-bar-chart"></i> Feed Stock
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'report-egg-production' %}">
+                        <i class="bi bi-egg-fill"></i> Egg Production
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'report-mortality' %}">
+                        <i class="bi bi-heartbreak"></i> Mortality
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'report-maintenance' %}">
+                        <i class="bi bi-tools"></i> Maintenance
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'report-pending' %}">
+                        <i class="bi bi-hourglass"></i> Pending Confirmations
+                    </a>
+                </li>
+                {% endif %}
 
             </ul>
         </nav>

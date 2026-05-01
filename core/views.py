@@ -66,6 +66,155 @@ def dashboard(request):
     return render(request, 'core/dashboard.html', context)
 
 
+
+# ══════════════════════════════════════════════════════════════════
+# REPORTS
+# ══════════════════════════════════════════════════════════════════
+
+@login_required
+def feed_stock_report(request):
+    from django.db.models import F
+    stocks = FeedStock.objects.select_related('feed_type').all()
+    low_stocks = stocks.filter(current_balance__lte=F('reorder_threshold'))
+    context = {
+        'stocks': stocks,
+        'low_stocks': low_stocks,
+        'low_stock_count': low_stocks.count(),
+    }
+    context.update(get_user_context(request.user))
+    return render(request, 'core/report_feed_stock.html', context)
+
+
+@login_required
+def egg_production_report(request):
+    from django.db.models import Sum
+    from datetime import timedelta
+    today = date.today()
+    week_start = today - timedelta(days=7)
+    month_start = today.replace(day=1)
+
+    weekly_collections = EggCollection.objects.filter(
+        collection_date__gte=week_start
+    ).values('pen__name').annotate(
+        total_observed=Sum('observed_count')
+    ).order_by('pen__name')
+
+    monthly_collections = EggCollection.objects.filter(
+        collection_date__gte=month_start
+    ).values('pen__name').annotate(
+        total_observed=Sum('observed_count')
+    ).order_by('pen__name')
+
+    weekly_grading = EggGrading.objects.filter(
+        grading_date__gte=week_start
+    ).aggregate(
+        total_whole=Sum('whole_eggs'),
+        total_broken=Sum('broken_eggs'),
+        total_dirty=Sum('dirty_eggs'),
+        total_graded=Sum('total_graded'),
+    )
+
+    context = {
+        'weekly_collections': weekly_collections,
+        'monthly_collections': monthly_collections,
+        'weekly_grading': weekly_grading,
+        'week_start': week_start,
+        'month_start': month_start,
+        'today': today,
+    }
+    context.update(get_user_context(request.user))
+    return render(request, 'core/report_egg_production.html', context)
+
+
+@login_required
+def mortality_report(request):
+    from django.db.models import Sum
+    from datetime import timedelta
+    today = date.today()
+    week_start = today - timedelta(days=7)
+    month_start = today.replace(day=1)
+
+    weekly_mortality = MortalityRecord.objects.filter(
+        date_found__gte=week_start
+    ).values('pen__name').annotate(
+        total_deaths=Sum('total_count')
+    ).order_by('pen__name')
+
+    monthly_mortality = MortalityRecord.objects.filter(
+        date_found__gte=month_start
+    ).values('pen__name').annotate(
+        total_deaths=Sum('total_count')
+    ).order_by('pen__name')
+
+    high_mortality_records = MortalityRecord.objects.filter(
+        is_high_mortality=True
+    ).order_by('-date_found')[:10]
+
+    context = {
+        'weekly_mortality': weekly_mortality,
+        'monthly_mortality': monthly_mortality,
+        'high_mortality_records': high_mortality_records,
+        'week_start': week_start,
+        'month_start': month_start,
+        'today': today,
+    }
+    context.update(get_user_context(request.user))
+    return render(request, 'core/report_mortality.html', context)
+
+
+@login_required
+def maintenance_report(request):
+    open_faults = MaintenanceFault.objects.filter(
+        status='open'
+    ).order_by('-reported_date')
+
+    in_progress_faults = MaintenanceFault.objects.filter(
+        status='in_progress'
+    ).order_by('-reported_date')
+
+    urgent_faults = MaintenanceFault.objects.filter(
+        status__in=['open', 'in_progress'],
+        severity='urgent'
+    ).order_by('-reported_date')
+
+    context = {
+        'open_faults': open_faults,
+        'in_progress_faults': in_progress_faults,
+        'urgent_faults': urgent_faults,
+        'open_count': open_faults.count(),
+        'urgent_count': urgent_faults.count(),
+    }
+    context.update(get_user_context(request.user))
+    return render(request, 'core/report_maintenance.html', context)
+
+
+@login_required
+def pending_confirmations_report(request):
+    pending_cleaning = CleaningLog.objects.filter(
+        confirmation_status='pending'
+    ).order_by('-cleaning_date')
+
+    pending_feeding = PenFeedingActivity.objects.filter(
+        supervision__isnull=True
+    ).order_by('-feeding_date')
+
+    pending_storage = EggGrading.objects.filter(
+        storage_confirmation__isnull=True
+    ).order_by('-grading_date')
+
+    context = {
+        'pending_cleaning': pending_cleaning,
+        'pending_feeding': pending_feeding,
+        'pending_storage': pending_storage,
+        'pending_cleaning_count': pending_cleaning.count(),
+        'pending_feeding_count': pending_feeding.count(),
+        'pending_storage_count': pending_storage.count(),
+    }
+    context.update(get_user_context(request.user))
+    return render(request, 'core/report_pending_confirmations.html', context)
+
+
+
 # ══════════════════════════════════════════════════════════════════
 # FARM SETUP
 # ══════════════════════════════════════════════════════════════════

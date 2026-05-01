@@ -1,0 +1,120 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Maintenance Report — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Maintenance Report</h4>
+
+{% if urgent_count > 0 %}
+<div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle"></i>
+    <strong>{{ urgent_count }} urgent fault(s) require immediate attention.</strong>
+</div>
+{% endif %}
+
+<div class="card mb-4">
+    <div class="card-header text-danger">Urgent Open Faults</div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Pen</th>
+                    <th>Fault Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fault in urgent_faults %}
+                <tr class="table-danger">
+                    <td>{{ fault.reported_date }}</td>
+                    <td>{{ fault.pen.name }}</td>
+                    <td>{{ fault.get_fault_type_display }}</td>
+                    <td>{{ fault.get_status_display }}</td>
+                    <td>
+                        <a href="{% url 'maintenancefault-detail' fault.pk %}" class="btn btn-sm btn-outline-danger">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">No urgent faults.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">All Open Faults ({{ open_count }})</div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Pen</th>
+                    <th>Fault Type</th>
+                    <th>Severity</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fault in open_faults %}
+                <tr>
+                    <td>{{ fault.reported_date }}</td>
+                    <td>{{ fault.pen.name }}</td>
+                    <td>{{ fault.get_fault_type_display }}</td>
+                    <td>
+                        {% if fault.severity == 'urgent' %}
+                            <span class="badge bg-danger">Urgent</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Minor</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'maintenancefault-detail' fault.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">No open faults.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">In Progress Faults</div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Pen</th>
+                    <th>Fault Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fault in in_progress_faults %}
+                <tr>
+                    <td>{{ fault.reported_date }}</td>
+                    <td>{{ fault.pen.name }}</td>
+                    <td>{{ fault.get_fault_type_display }}</td>
+                    <td>
+                        <a href="{% url 'maintenancefault-detail' fault.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">No faults in progress.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

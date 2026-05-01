@@ -26,6 +26,13 @@ urlpatterns = [
     path('flocks/<int:pk>/', views.FlockDetailView.as_view(), name='flock-detail'),
     path('flocks/<int:pk>/edit/', views.FlockUpdateView.as_view(), name='flock-update'),
 
+    # Reports
+    path('reports/feed-stock/', views.feed_stock_report, name='report-feed-stock'),
+    path('reports/egg-production/', views.egg_production_report, name='report-egg-production'),
+    path('reports/mortality/', views.mortality_report, name='report-mortality'),
+    path('reports/maintenance/', views.maintenance_report, name='report-maintenance'),
+    path('reports/pending/', views.pending_confirmations_report, name='report-pending'),
+
     # Supplier
     path('suppliers/', views.SupplierListView.as_view(), name='supplier-list'),
     path('suppliers/add/', views.SupplierCreateView.as_view(), name='supplier-create'),

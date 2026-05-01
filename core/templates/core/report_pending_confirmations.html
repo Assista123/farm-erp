@@ -1,0 +1,126 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Pending Confirmations — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Pending Confirmations</h4>
+
+{% if pending_cleaning_count == 0 and pending_feeding_count == 0 and pending_storage_count == 0 %}
+<div class="alert alert-success">
+    <i class="bi bi-check-circle"></i> All confirmations are up to date. Nothing pending.
+</div>
+{% endif %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        Cleaning Awaiting Confirmation
+        {% if pending_cleaning_count > 0 %}
+            <span class="badge bg-warning text-dark ms-2">{{ pending_cleaning_count }}</span>
+        {% endif %}
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Pen</th>
+                    <th>Type</th>
+                    <th>Recorded By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in pending_cleaning %}
+                <tr>
+                    <td>{{ log.cleaning_date }}</td>
+                    <td>{{ log.pen.name }}</td>
+                    <td>{{ log.get_cleaning_type_display }}</td>
+                    <td>{{ log.recorded_by.full_name }}</td>
+                    <td>
+                        <a href="{% url 'cleaninglog-detail' log.pk %}" class="btn btn-sm btn-outline-success">Confirm</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-3">No pending cleaning confirmations.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Feeding Activities Awaiting Supervision
+        {% if pending_feeding_count > 0 %}
+            <span class="badge bg-warning text-dark ms-2">{{ pending_feeding_count }}</span>
+        {% endif %}
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Flock</th>
+                    <th>Fed By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for activity in pending_feeding %}
+                <tr>
+                    <td>{{ activity.feeding_date }}</td>
+                    <td>{{ activity.flock }}</td>
+                    <td>{{ activity.fed_by.full_name }}</td>
+                    <td>
+                        <a href="{% url 'penfeedingactivity-detail' activity.pk %}" class="btn btn-sm btn-outline-success">Supervise</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-3">No feeding activities awaiting supervision.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        Egg Gradings Awaiting Storage Confirmation
+        {% if pending_storage_count > 0 %}
+            <span class="badge bg-warning text-dark ms-2">{{ pending_storage_count }}</span>
+        {% endif %}
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Grading Date</th>
+                    <th>Total Graded</th>
+                    <th>Graded By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for grading in pending_storage %}
+                <tr>
+                    <td>{{ grading.grading_date }}</td>
+                    <td>{{ grading.total_graded }}</td>
+                    <td>{{ grading.graded_by.full_name }}</td>
+                    <td>
+                        <a href="{% url 'egggrading-detail' grading.pk %}" class="btn btn-sm btn-outline-success">Confirm Storage</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-3">No gradings awaiting storage confirmation.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
