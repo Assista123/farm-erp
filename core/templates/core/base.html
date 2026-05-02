@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Farm ERP{% endblock %}</title>
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     {% load static %}
     <link rel="stylesheet" href="{% static 'core/css/main.css' %}">
@@ -15,11 +13,21 @@
 
 <!-- TOP NAVBAR -->
 <nav class="navbar navbar-dark bg-success px-3">
-    <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">
-        <i class="bi bi-house-fill"></i> Farm ERP
-    </a>
+    <div class="d-flex align-items-center">
+        <button class="navbar-toggler me-2 d-md-none" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sidebar"
+                aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">
+            <i class="bi bi-house-fill"></i> Farm ERP
+        </a>
+    </div>
     <div class="d-flex align-items-center text-white">
-        <span class="me-3"><i class="bi bi-person-circle"></i> {{ request.user.username }}</span>
+        <span class="me-3 d-none d-md-inline">
+            <i class="bi bi-person-circle"></i>
+            {{ request.user.worker_profile.full_name|default:request.user.username }}
+        </span>
         <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
     </div>
 </nav>
@@ -28,7 +36,7 @@
     <div class="row">
 
         <!-- SIDEBAR -->
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar py-3 min-vh-100">
+        <nav class="col-md-2 d-md-block bg-light sidebar py-3 min-vh-100 collapse" id="sidebar">
             <ul class="nav flex-column">
 
                 <li class="nav-item mb-1">
@@ -45,7 +53,6 @@
                         <i class="bi bi-building"></i> Farm Units
                     </a>
                 </li>
-               
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'pen-list' %}">
                         <i class="bi bi-grid"></i> Pens
@@ -83,6 +90,7 @@
                     </a>
                 </li>
                 {% endif %}
+
                 <li class="nav-item mt-3 mb-1">
                     <span class="text-muted small px-3">FEED</span>
                 </li>
@@ -97,13 +105,7 @@
                         <i class="bi bi-box-seam"></i> Deliveries
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'drugpurchaseorder-list' %}">
-                        <i class="bi bi-capsule"></i> Drug Purchases
-                    </a>
-                </li>
                 {% endif %}
-                </li>
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'feedstock-list' %}">
                         <i class="bi bi-archive"></i> Stock
@@ -112,7 +114,7 @@
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'feedissuance-list' %}">
                         <i class="bi bi-arrow-right-square"></i> Issuance
-                        </a>
+                    </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'penfeedingactivity-list' %}">
@@ -148,11 +150,17 @@
                         <i class="bi bi-capsule"></i> Drug Stock
                     </a>
                 </li>
-               
+                {% if is_manager_or_above %}
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'drugpurchaseorder-list' %}">
+                        <i class="bi bi-capsule"></i> Drug Purchases
+                    </a>
+                </li>
+                {% endif %}
+
                 <li class="nav-item mt-3 mb-1">
                     <span class="text-muted small px-3">PRODUCTION</span>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'eggcollection-list' %}">
                         <i class="bi bi-egg-fill"></i> Egg Collection
@@ -173,7 +181,6 @@
                         <i class="bi bi-arrow-up-right-square"></i> Egg Transfer
                     </a>
                 </li>
-                
 
                 <li class="nav-item mt-3 mb-1">
                     <span class="text-muted small px-3">OPERATIONS</span>
@@ -203,6 +210,7 @@
                         <i class="bi bi-recycle"></i> Manure
                     </a>
                 </li>
+
                 {% if is_supervisor_or_above %}
                 <li class="nav-item mt-3 mb-1">
                     <span class="text-muted small px-3">REPORTS</span>
@@ -240,7 +248,6 @@
         <!-- MAIN CONTENT -->
         <main class="col-md-10 ms-sm-auto px-4 py-4">
 
-            <!-- MESSAGES -->
             {% if messages %}
                 {% for message in messages %}
                     <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
