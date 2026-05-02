@@ -128,4 +128,7 @@ STATICFILES_DIRS = [BASE_DIR / 'core' / 'static'] if (BASE_DIR / 'core' / 'stati
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-CSRF_TRUSTED_ORIGINS = ['https://web-production-20bcdd.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://web-production-20bcdd.up.railway.app', 
+                            'https://localhost:8000', 
+                            'https://127.0.0.1.8000',
+                            ]
