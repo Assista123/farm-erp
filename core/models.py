@@ -110,6 +110,11 @@ class Supplier(models.Model):
 
     name = models.CharField(max_length=200)
     supplier_type = models.CharField(max_length=20, choices=SUPPLIER_TYPE_CHOICES)
+    supplier_type_other = models.CharField(
+    max_length=200,
+    blank=True,
+    help_text="Describe supplier type if you selected Other above"
+)
     phone = models.CharField(max_length=20, blank=True)
     address = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
@@ -376,6 +381,12 @@ class FeedStockMovement(models.Model):
     )
     movement_type = models.CharField(max_length=3, choices=MOVEMENT_TYPE_CHOICES)
     movement_reason = models.CharField(max_length=20, choices=MOVEMENT_REASON_CHOICES)
+    
+    movement_reason_other = models.CharField(
+    max_length=200,
+    blank=True,
+    help_text="Describe movement reason if you selected Other above"
+    )
     quantity = models.PositiveIntegerField()
     balance_after = models.PositiveIntegerField(
         editable=False,
@@ -560,6 +571,11 @@ class PenFeedingSupervision(models.Model):
     distribution_even = models.BooleanField(default=False)
     trough_condition = models.CharField(max_length=20, choices=TROUGH_CONDITION_CHOICES)
     bird_behavior = models.CharField(max_length=20, choices=BIRD_BEHAVIOR_CHOICES)
+    bird_behavior_other = models.CharField(
+    max_length=200,
+    blank=True,
+    help_text="Describe bird behavior if you selected Other above"
+    )
     confirmation_status = models.CharField(
         max_length=20,
         choices=CONFIRMATION_STATUS_CHOICES,
@@ -702,6 +718,11 @@ class DrugStockMovement(models.Model):
     )
     movement_type = models.CharField(max_length=3, choices=MOVEMENT_TYPE_CHOICES)
     movement_reason = models.CharField(max_length=20, choices=MOVEMENT_REASON_CHOICES)
+    movement_reason_other = models.CharField(
+    max_length=200,
+    blank=True,
+    help_text="Describe movement reason if you selected Other above"
+    )
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     balance_after = models.DecimalField(
         max_digits=10,
@@ -796,6 +817,11 @@ class WaterTreatmentLog(models.Model):
         max_length=20,
         choices=DOSAGE_UNIT_CHOICES,
         blank=True
+    )
+    dosage_unit_other = models.CharField(
+    max_length=100,
+    blank=True,
+    help_text="Specify dosage unit if you selected Other above"
     )
     adjusted_dosage = models.BooleanField(
         default=False,
@@ -1061,7 +1087,16 @@ class MortalityRecordItem(models.Model):
         help_text="Who bought the birds if disposal method is Sold"
     )
     suspected_cause = models.CharField(max_length=20, choices=SUSPECTED_CAUSE_CHOICES)
-
+    disposal_method_other = models.CharField(
+    max_length=200,
+    blank=True,
+    help_text="Describe disposal method if you selected Other above"
+    )
+    suspected_cause_other = models.CharField(
+    max_length=200,
+    blank=True,
+    help_text="Describe suspected cause if you selected Other above"
+    )
     def __str__(self):
         return f"{self.count} birds - {self.get_condition_display()} - {self.get_disposal_method_display()}"
 
@@ -1099,6 +1134,11 @@ class MortalityAlert(models.Model):
     response_action = models.CharField(
         max_length=20,
         choices=RESPONSE_ACTION_CHOICES
+    )
+    response_action_other = models.CharField(
+    max_length=200,
+    blank=True,
+    help_text="Describe response action if you selected Other above"
     )
     response_by = models.ForeignKey(
         Worker,
@@ -1263,6 +1303,11 @@ class MaintenanceFault(models.Model):
         related_name='maintenance_faults'
     )
     fault_type = models.CharField(max_length=20, choices=FAULT_TYPE_CHOICES)
+    fault_type_other = models.CharField(
+    max_length=200,
+    blank=True,
+    help_text="Describe fault type if you selected Other above"
+    )
     fault_description = models.TextField()
     severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES)
     reported_by = models.ForeignKey(
