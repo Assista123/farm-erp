@@ -127,3 +127,5 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / 'core' / 'static'] if (BASE_DIR / 'core' / 'static').exists() else []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+CSRF_TRUSTED_ORIGINS = ['https://web-production-20bcdd.up.railway.app']
