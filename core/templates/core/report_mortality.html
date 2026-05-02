@@ -8,6 +8,7 @@
 <div class="card mb-4">
     <div class="card-header">Weekly Mortality by Pen ({{ week_start }} to {{ today }})</div>
     <div class="card-body p-0">
+        <div class="table-responsive">
         <table class="table table-hover mb-0">
             <thead>
                 <tr>
@@ -28,12 +29,14 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 
 <div class="card mb-4">
     <div class="card-header">Monthly Mortality by Pen ({{ month_start }} to {{ today }})</div>
     <div class="card-body p-0">
+        <div class="table-responsive">
         <table class="table table-hover mb-0">
             <thead>
                 <tr>
@@ -54,12 +57,14 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 
 <div class="card">
     <div class="card-header text-danger">Recent High Mortality Alerts</div>
     <div class="card-body p-0">
+        <div class="table-responsive">
         <table class="table table-hover mb-0">
             <thead>
                 <tr>
@@ -88,6 +93,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 {% endblock %}
