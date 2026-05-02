@@ -1,6 +1,6 @@
 [deploy]
-startCommand = "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn farm_erp.wsgi --bind 0.0.0.0:$PORT --workers 1 --timeout 120 --log-file -"
-healthcheckPath = "/"
+startCommand = "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn farm_erp.wsgi --bind 0.0.0.0:8000 --workers 1 --timeout 120 --log-file -"
+healthcheckPath = "/accounts/login/"
 healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
