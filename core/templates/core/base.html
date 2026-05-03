@@ -19,7 +19,7 @@
 <body>
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-dark bg-success px-3 fixed-top">
+<nav class="navbar navbar-expand-md navbar-dark bg-success px-3 fixed-top">
     <div class="d-flex align-items-center">
         <button class="navbar-toggler me-2 d-md-none" type="button" id="sidebarToggle">
             <span class="navbar-toggler-icon"></span>
@@ -89,21 +89,35 @@ document.addEventListener('DOMContentLoaded', function () {
     const overlay = document.getElementById('sidebarOverlay');
     const toggleBtn = document.getElementById('sidebarToggle');
 
+    if (!sidebar || !toggleBtn) return;
+
     function openSidebar() {
         sidebar.classList.add('mobile-open');
-        overlay.classList.add('mobile-open');
+        if (overlay) overlay.classList.add('mobile-open');
     }
 
     function closeSidebar() {
         sidebar.classList.remove('mobile-open');
-        overlay.classList.remove('mobile-open');
+        if (overlay) overlay.classList.remove('mobile-open');
     }
 
-    toggleBtn.addEventListener('click', function () {
-        sidebar.classList.contains('mobile-open') ? closeSidebar() : openSidebar();
+    toggleBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (sidebar.classList.contains('mobile-open')) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
     });
 
-    overlay.addEventListener('click', closeSidebar);
+    if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+    }
+
+    // Optional: Close sidebar when pressing ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === "Escape") closeSidebar();
+    });
 });
 </script>
 

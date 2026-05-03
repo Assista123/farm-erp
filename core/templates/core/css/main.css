@@ -1,24 +1,15 @@
 body {
     font-family: 'Segoe UI', sans-serif;
     background-color: #f8f9fa;
+    padding-top: 56px;           /* Important for fixed navbar */
 }
 
-/* NAVBAR FIX HEIGHT OFFSET */
-body {
-    padding-top: 56px;
-}
-
-/* SIDEBAR BASE */
+/* SIDEBAR */
 .sidebar {
     background-color: #f8f9fa;
-}
-.sidebar {
-    background-color: #f8f9fa;
-    z-index: 1045; /* Ensures it is above content but below the fixed-top nav (usually 1030) */
-    transition: left 0.3s ease; /* Smooth transition for both desktop and mobile */
+    transition: left 0.3s ease;
 }
 
-/* NAV LINKS */
 .sidebar .nav-link {
     padding: 6px 12px;
     border-radius: 4px;
@@ -52,7 +43,7 @@ body {
     display: block;
 }
 
-/* DESKTOP FIX */
+/* ==================== DESKTOP ==================== */
 @media (min-width: 768px) {
     .sidebar {
         position: fixed;
@@ -61,32 +52,29 @@ body {
         width: 240px;
         height: calc(100vh - 56px);
         border-right: 1px solid #dee2e6;
-        display: block !important; /* Forces visibility */
-        z-index: 1000;
+        display: block !important;
+        z-index: 1020;
     }
 
     .main-content {
-        margin-left: 240px; /* This creates the space for the fixed sidebar */
+        margin-left: 240px;
         width: calc(100% - 240px);
     }
 }
 
-/* MOBILE FIX */
+/* ==================== MOBILE ==================== */
 @media (max-width: 767px) {
     .sidebar {
         position: fixed;
         top: 56px;
-        left: -240px; /* Pull it completely off-screen */
+        left: -240px;
         width: 240px;
         height: calc(100vh - 56px);
         z-index: 1050;
-        transition: left 0.3s ease;
-        display: block; 
-        background-color: white !important;
+        background-color: white;
         box-shadow: 5px 0 15px rgba(0,0,0,0.1);
     }
 
-    /* This class is what the JS toggles */
     .sidebar.mobile-open {
         left: 0 !important;
     }
