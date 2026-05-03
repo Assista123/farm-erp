@@ -64,3 +64,32 @@ body {
 h4, h5 {
     color: #2e7d32;
 }
+
+/* Mobile Offcanvas */
+.offcanvas {
+    width: 280px !important;
+}
+
+.offcanvas .nav-link {
+    padding: 10px 16px;
+    border-radius: 0;
+}
+
+.offcanvas .nav-link:hover {
+    background-color: #e8f5e9;
+}
+
+/* Make main content adjust properly */
+main {
+    transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        display: none; /* redundant but safe */
+    }
+    
+    main {
+        margin-left: 0 !important;
+    }
+}
