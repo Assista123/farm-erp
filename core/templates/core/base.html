@@ -8,6 +8,55 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     {% load static %}
     <link rel="stylesheet" href="{% static 'core/css/main.css' %}">
+<style>
+    @media (max-width: 767px) {
+        #sidebar {
+            display: none;
+            position: fixed;
+            top: 56px;
+            left: 0;
+            width: 75%;
+            max-width: 300px;
+            height: calc(100vh - 56px);
+            z-index: 1050;
+            overflow-y: auto;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+            background-color: #f8f9fa;
+        }
+        #sidebar.mobile-open {
+            display: block;
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 56px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 56px);
+            background: rgba(0,0,0,0.5);
+            z-index: 1040;
+        }
+        .sidebar-overlay.mobile-open {
+            display: block;
+        }
+        main {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin-left: 0 !important;
+            padding: 1rem !important;
+        }
+    }
+    @media (min-width: 768px) {
+        #sidebar {
+            display: block;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid #dee2e6;
+        }
+    }
+</style>    
 </head>
 <body>
 
