@@ -1,94 +1,111 @@
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #f8f9fa;
-}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Farm ERP{% endblock %}</title>
 
-/* NAVBAR FIX HEIGHT OFFSET */
-body {
-    padding-top: 56px;
-}
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-/* SIDEBAR BASE */
-.sidebar {
-    background-color: #f8f9fa;
-}
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 
-/* NAV LINKS */
-.sidebar .nav-link {
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 0.9rem;
-}
+    <!-- Your CSS -->
+    <link rel="stylesheet" href="{% static 'core/css/main.css' %}">
+</head>
 
-.sidebar .nav-link:hover {
-    background-color: #e8f5e9;
-    color: #2e7d32 !important;
-}
+<body>
 
-.sidebar .nav-link.active {
-    background-color: #c8e6c9;
-    color: #1b5e20 !important;
-    font-weight: 600;
-}
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark bg-success px-3 fixed-top">
+    <div class="d-flex align-items-center">
+        <button class="navbar-toggler me-2 d-md-none" type="button" id="sidebarToggle">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-/* OVERLAY */
-.sidebar-overlay {
-    display: none;
-    position: fixed;
-    top: 56px;
-    left: 0;
-    width: 100%;
-    height: calc(100vh - 56px);
-    background: rgba(0,0,0,0.5);
-    z-index: 1040;
-}
+        <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">
+            <i class="bi bi-house-fill"></i> Farm ERP
+        </a>
+    </div>
 
-.sidebar-overlay.mobile-open {
-    display: block;
-}
+    <div class="d-flex align-items-center text-white">
+        <span class="me-3 d-none d-md-inline">
+            <i class="bi bi-person-circle"></i>
+            {{ request.user.worker_profile.full_name|default:request.user.username }}
+        </span>
+        <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
+    </div>
+</nav>
 
-/* DESKTOP */
-@media (min-width: 768px) {
-    .app-layout {
-        display: flex;
+<!-- OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- LAYOUT -->
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar bg-light py-3" id="sidebar">
+        <ul class="nav flex-column">
+
+            <li class="nav-item mb-1">
+                <a class="nav-link text-dark fw-bold" href="{% url 'dashboard' %}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+
+            <!-- Keep the rest of your sidebar items here -->
+
+        </ul>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content px-4 py-4">
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Sidebar Toggle Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const toggleBtn = document.getElementById('sidebarToggle');
+
+    function openSidebar() {
+        sidebar.classList.add('mobile-open');
+        overlay.classList.add('mobile-open');
     }
 
-    #sidebar {
-        position: fixed;
-        top: 56px;
-        left: 0;
-        width: 240px;
-        height: calc(100vh - 56px);
-        border-right: 1px solid #dee2e6;
+    function closeSidebar() {
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('mobile-open');
     }
 
-    .main-content {
-        margin-left: 240px;
-        width: calc(100% - 240px); /* prevents horizontal scroll */
-    }
-}
+    toggleBtn.addEventListener('click', function () {
+        sidebar.classList.contains('mobile-open') ? closeSidebar() : openSidebar();
+    });
 
-/* MOBILE */
-@media (max-width: 767px) {
-    #sidebar {
-        position: fixed;
-        top: 56px;
-        left: -100%; /* hidden */
-        width: 80%;
-        max-width: 300px;
-        height: calc(100vh - 56px);
-        z-index: 1050;
-        overflow-y: auto;
-        box-shadow: 4px 0 15px rgba(0,0,0,0.3);
-        transition: left 0.3s ease;
-    }
+    overlay.addEventListener('click', closeSidebar);
+});
+</script>
 
-    #sidebar.mobile-open {
-        left: 0;
-    }
-
-    .main-content {
-        margin-left: 0;
-        width: 100%;
-    }
-}
+</body>
+</html>
