@@ -1,0 +1,21 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Flock Placement — Farm ERP{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">Flock Placement — {{ placement.flock }}</h4>
+
+<div class="card">
+    <div class="card-header">Details</div>
+    <div class="card-body">
+        <p><strong>Flock:</strong> {{ placement.flock }}</p>
+        <p><strong>Supplier:</strong> {{ placement.supplier.name }}</p>
+        <p><strong>Quantity Received:</strong> {{ placement.quantity_received }}</p>
+        <p><strong>Cost Per Bird:</strong> {{ placement.cost_per_bird }}</p>
+        <p><strong>Total Cost:</strong> {{ placement.total_cost }}</p>
+        <p><strong>Placement Date:</strong> {{ placement.placement_date }}</p>
+        <p><strong>Recorded By:</strong> {{ placement.recorded_by.full_name }}</p>
+        <p><strong>Notes:</strong> {{ placement.notes|default:"—" }}</p>
+    </div>
+</div>
+{% endblock %}

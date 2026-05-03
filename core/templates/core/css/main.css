@@ -3,12 +3,17 @@ body {
     background-color: #f8f9fa;
 }
 
-/* ── DESKTOP SIDEBAR ─────────────────────────────────────────── */
-.sidebar {
-    border-right: 1px solid #dee2e6;
-    min-height: 100vh;
+/* NAVBAR FIX HEIGHT OFFSET */
+body {
+    padding-top: 56px;
 }
 
+/* SIDEBAR BASE */
+.sidebar {
+    background-color: #f8f9fa;
+}
+
+/* NAV LINKS */
 .sidebar .nav-link {
     padding: 6px 12px;
     border-radius: 4px;
@@ -26,48 +31,7 @@ body {
     font-weight: 600;
 }
 
-/* ── CARDS ───────────────────────────────────────────────────── */
-.card {
-    border: none;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    border-radius: 8px;
-}
-
-.card-header {
-    background-color: #fff;
-    border-bottom: 1px solid #e9ecef;
-    font-weight: 600;
-}
-
-/* ── TABLES ──────────────────────────────────────────────────── */
-.table th {
-    background-color: #f1f8e9;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* ── BUTTONS ─────────────────────────────────────────────────── */
-.btn-success {
-    background-color: #2e7d32;
-    border-color: #2e7d32;
-}
-
-.btn-success:hover {
-    background-color: #1b5e20;
-    border-color: #1b5e20;
-}
-
-/* ── NAVBAR ──────────────────────────────────────────────────── */
-.navbar {
-    background-color: #2e7d32 !important;
-}
-
-h4, h5 {
-    color: #2e7d32;
-}
-
-/* ── MOBILE OVERLAY ──────────────────────────────────────────── */
+/* OVERLAY */
 .sidebar-overlay {
     display: none;
     position: fixed;
@@ -83,44 +47,48 @@ h4, h5 {
     display: block;
 }
 
-/* ── MOBILE ──────────────────────────────────────────────────── */
-@media (max-width: 767px) {
-    #sidebar {
-        position: fixed;
-        top: 56px;
-        left: -100%;
-        width: 75%;
-        max-width: 300px;
-        height: calc(100vh - 56px);
-        z-index: 1050;
-        overflow-y: auto;
-        box-shadow: 4px 0 15px rgba(0,0,0,0.3);
-        background-color: #f8f9fa;
-        transition: left 0.3s ease;
-        min-height: unset;
-    }
-
-    #sidebar.mobile-open {
-        left: 0;
-    }
-
-    main {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin-left: 0 !important;
-    }
-}
-
-/* DESKTOP LAYOUT FIX */
+/* DESKTOP */
 @media (min-width: 768px) {
+    .app-layout {
+        display: flex;
+    }
+
     #sidebar {
         position: fixed;
         top: 56px;
         left: 0;
         width: 240px;
         height: calc(100vh - 56px);
+        border-right: 1px solid #dee2e6;
     }
+
     .main-content {
-        margin-left: 240px
+        margin-left: 240px;
+        width: calc(100% - 240px); /* prevents horizontal scroll */
+    }
+}
+
+/* MOBILE */
+@media (max-width: 767px) {
+    #sidebar {
+        position: fixed;
+        top: 56px;
+        left: -100%; /* hidden */
+        width: 80%;
+        max-width: 300px;
+        height: calc(100vh - 56px);
+        z-index: 1050;
+        overflow-y: auto;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+        transition: left 0.3s ease;
+    }
+
+    #sidebar.mobile-open {
+        left: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
     }
 }

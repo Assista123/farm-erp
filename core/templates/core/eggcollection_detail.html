@@ -24,7 +24,6 @@
     <div class="card-body">
         <p><strong>Whole Eggs:</strong> {{ collection.grading.whole_eggs }}</p>
         <p><strong>Broken Eggs:</strong> {{ collection.grading.broken_eggs }}</p>
-        <p><strong>Dirty Eggs:</strong> {{ collection.grading.dirty_eggs }}</p>
         <p><strong>Total Graded:</strong> {{ collection.grading.total_graded }}</p>
         <p><strong>Discrepancy:</strong>
             {% if collection.grading.grading_discrepancy != 0 %}
@@ -43,7 +42,6 @@
     <div class="card-body">
         <p><strong>Whole Eggs Stored:</strong> {{ collection.grading.storage_confirmation.whole_eggs_stored }}</p>
         <p><strong>Broken Eggs Stored:</strong> {{ collection.grading.storage_confirmation.broken_eggs_stored }}</p>
-        <p><strong>Dirty Eggs Stored:</strong> {{ collection.grading.storage_confirmation.dirty_eggs_stored }}</p>
         <p><strong>Total Stored:</strong> {{ collection.grading.storage_confirmation.total_stored }}</p>
         <p><strong>Storage Discrepancy:</strong>
             {% if collection.grading.storage_confirmation.storage_discrepancy != 0 %}
