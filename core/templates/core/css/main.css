@@ -12,6 +12,11 @@ body {
 .sidebar {
     background-color: #f8f9fa;
 }
+.sidebar {
+    background-color: #f8f9fa;
+    z-index: 1045; /* Ensures it is above content but below the fixed-top nav (usually 1030) */
+    transition: left 0.3s ease; /* Smooth transition for both desktop and mobile */
+}
 
 /* NAV LINKS */
 .sidebar .nav-link {
@@ -73,22 +78,30 @@ body {
     #sidebar {
         position: fixed;
         top: 56px;
-        left: -100%; /* hidden */
+        left: -100%; /* Hidden by default */
         width: 80%;
         max-width: 300px;
         height: calc(100vh - 56px);
-        z-index: 1050;
+        z-index: 1050; 
         overflow-y: auto;
-        box-shadow: 4px 0 15px rgba(0,0,0,0.3);
-        transition: left 0.3s ease;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        display: block; /* Ensure it's rendered */
     }
 
     #sidebar.mobile-open {
-        left: 0;
+        left: 0 !important; /* Forces the sidebar to slide in */
     }
 
     .main-content {
         margin-left: 0;
         width: 100%;
+    }
+}
+
+/* Ensure Desktop visibility */
+@media (min-width: 768px) {
+    #sidebar {
+        left: 0; /* Always visible on desktop */
+        display: block;
     }
 }
