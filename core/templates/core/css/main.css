@@ -1,13 +1,14 @@
 body {
     font-family: 'Segoe UI', sans-serif;
     background-color: #f8f9fa;
-    padding-top: 56px;           /* Important for fixed navbar */
 }
 
-/* SIDEBAR */
 .sidebar {
-    background-color: #f8f9fa;
-    transition: left 0.3s ease;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid #dee2e6;
 }
 
 .sidebar .nav-link {
@@ -27,60 +28,39 @@ body {
     font-weight: 600;
 }
 
-/* OVERLAY */
-.sidebar-overlay {
-    display: none;
-    position: fixed;
-    top: 56px;
-    left: 0;
-    width: 100%;
-    height: calc(100vh - 56px);
-    background: rgba(0,0,0,0.5);
-    z-index: 1040;
+.card {
+    border: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    border-radius: 8px;
 }
 
-.sidebar-overlay.mobile-open {
-    display: block;
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 600;
 }
 
-/* ==================== DESKTOP ==================== */
-@media (min-width: 768px) {
-    .sidebar {
-        position: fixed;
-        top: 56px;
-        left: 0;
-        width: 240px;
-        height: calc(100vh - 56px);
-        border-right: 1px solid #dee2e6;
-        display: block !important;
-        z-index: 1020;
-    }
-
-    .main-content {
-        margin-left: 240px;
-        width: calc(100% - 240px);
-    }
+.table th {
+    background-color: #f1f8e9;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* ==================== MOBILE ==================== */
-@media (max-width: 767px) {
-    .sidebar {
-        position: fixed;
-        top: 56px;
-        left: -240px;
-        width: 240px;
-        height: calc(100vh - 56px);
-        z-index: 1050;
-        background-color: white;
-        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-    }
+.btn-success {
+    background-color: #2e7d32;
+    border-color: #2e7d32;
+}
 
-    .sidebar.mobile-open {
-        left: 0 !important;
-    }
+.btn-success:hover {
+    background-color: #1b5e20;
+    border-color: #1b5e20;
+}
 
-    .main-content {
-        margin-left: 0;
-        width: 100%;
-    }
+.navbar {
+    background-color: #2e7d32 !important;
+}
+
+h4, h5 {
+    color: #2e7d32;
 }
