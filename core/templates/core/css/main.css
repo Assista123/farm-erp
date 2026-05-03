@@ -52,56 +52,47 @@ body {
     display: block;
 }
 
-/* DESKTOP */
+/* DESKTOP FIX */
 @media (min-width: 768px) {
-    .app-layout {
-        display: flex;
-    }
-
-    #sidebar {
+    .sidebar {
         position: fixed;
         top: 56px;
         left: 0;
         width: 240px;
         height: calc(100vh - 56px);
         border-right: 1px solid #dee2e6;
+        display: block !important; /* Forces visibility */
+        z-index: 1000;
     }
 
     .main-content {
-        margin-left: 240px;
-        width: calc(100% - 240px); /* prevents horizontal scroll */
+        margin-left: 240px; /* This creates the space for the fixed sidebar */
+        width: calc(100% - 240px);
     }
 }
 
-/* MOBILE */
+/* MOBILE FIX */
 @media (max-width: 767px) {
-    #sidebar {
+    .sidebar {
         position: fixed;
         top: 56px;
-        left: -100%; /* Hidden by default */
-        width: 80%;
-        max-width: 300px;
+        left: -240px; /* Pull it completely off-screen */
+        width: 240px;
         height: calc(100vh - 56px);
-        z-index: 1050; 
-        overflow-y: auto;
-        box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-        display: block; /* Ensure it's rendered */
+        z-index: 1050;
+        transition: left 0.3s ease;
+        display: block; 
+        background-color: white !important;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
     }
 
-    #sidebar.mobile-open {
-        left: 0 !important; /* Forces the sidebar to slide in */
+    /* This class is what the JS toggles */
+    .sidebar.mobile-open {
+        left: 0 !important;
     }
 
     .main-content {
         margin-left: 0;
         width: 100%;
-    }
-}
-
-/* Ensure Desktop visibility */
-@media (min-width: 768px) {
-    #sidebar {
-        left: 0; /* Always visible on desktop */
-        display: block;
     }
 }
