@@ -1,106 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Farm ERP{% endblock %}</title>
+{% extends 'core/base.html' %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+{% block title %}Dashboard — Farm ERP{% endblock %}
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'core/css/main.css' %}">
-</head>
+{% block content %}
+<h4 class="mb-4">Dashboard</h4>
 
-<body>
+<div class="row g-3 mb-4">
 
-<!-- TOP NAVBAR -->
-<nav class="navbar navbar-dark bg-success px-3 fixed-top">
-    <div class="d-flex align-items-center">
-        <button class="navbar-toggler me-2 d-md-none" type="button" id="sidebarToggle">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">
-            <i class="bi bi-house-fill"></i> Farm ERP
-        </a>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-success">{{ total_birds }}</div>
+            <div class="text-muted small">Total Live Birds</div>
+        </div>
     </div>
 
-    <div class="d-flex align-items-center text-white">
-        <span class="me-3 d-none d-md-inline">
-            <i class="bi bi-person-circle"></i>
-            {{ request.user.worker_profile.full_name|default:request.user.username }}
-        </span>
-        <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-success">{{ todays_eggs }}</div>
+            <div class="text-muted small">Eggs Collected Today</div>
+        </div>
     </div>
-</nav>
 
-<!-- OVERLAY -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-danger">{{ todays_mortality }}</div>
+            <div class="text-muted small">Mortality Today</div>
+        </div>
+    </div>
 
-<!-- MAIN LAYOUT -->
-<div class="app-layout">
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-warning">{{ open_faults }}</div>
+            <div class="text-muted small">Open Maintenance Faults</div>
+        </div>
+    </div>
 
-    <!-- SIDEBAR -->
-    <nav class="sidebar bg-light py-3" id="sidebar">
-        <ul class="nav flex-column">
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-warning">{{ pending_cleaning }}</div>
+            <div class="text-muted small">Pending Cleaning Confirmations</div>
+        </div>
+    </div>
 
-            <li class="nav-item mb-1">
-                <a class="nav-link text-dark fw-bold" href="{% url 'dashboard' %}">
-                    <i class="bi bi-speedometer2"></i> Dashboard
-                </a>
-            </li>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-danger">{{ low_feed_stock }}</div>
+            <div class="text-muted small">Feed Types Low on Stock</div>
+        </div>
+    </div>
 
-            <!-- KEEP ALL YOUR OTHER NAV ITEMS HERE (UNCHANGED) -->
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-danger">{{ high_mortality_alerts }}</div>
+            <div class="text-muted small">High Mortality Alerts Today</div>
+        </div>
+    </div>
 
-        </ul>
-    </nav>
-
-    <!-- MAIN CONTENT -->
-    <main class="main-content px-4 py-4">
-
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        {% block content %}
-        {% endblock %}
-
-    </main>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <div class="fs-2 fw-bold text-success">{{ total_flocks }}</div>
+            <div class="text-muted small">Active Flocks</div>
+        </div>
+    </div>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    const toggleBtn = document.getElementById('sidebarToggle');
-
-    function openSidebar() {
-        sidebar.classList.add('mobile-open');
-        overlay.classList.add('mobile-open');
-    }
-
-    function closeSidebar() {
-        sidebar.classList.remove('mobile-open');
-        overlay.classList.remove('mobile-open');
-    }
-
-    toggleBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        sidebar.classList.contains('mobile-open') ? closeSidebar() : openSidebar();
-    });
-
-    overlay.addEventListener('click', closeSidebar);
-});
-</script>
-
-</body>
-</html>
+<p class="text-muted small">Last updated: {{ today }}</p>
+{% endblock %}
