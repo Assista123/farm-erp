@@ -16,6 +16,11 @@ from .models import (
     EggTransfer,
     PenFeedingActivityItem,
     ManureLog,
+    ShopStockMovement,
+    ShopStock,
+    ShopSale,
+    OldLayerSale,
+    WorkerSalary,
 )
 
 # ── FLOCK ────────────────────────────────────────────────────────────────────
@@ -159,3 +164,56 @@ def compute_manure_total_revenue(sender, instance, **kwargs):
     if instance.bags_sold and instance.price_per_bag:
         total = instance.bags_sold * instance.price_per_bag
         ManureLog.objects.filter(pk=instance.pk).update(total_revenue=total)
+
+# ── SHOP STOCK MOVEMENT ──────────────────────────────────────────
+
+@receiver(post_save, sender=ShopStockMovement)
+def update_shop_stock_balance(sender, instance, created, **kwargs):
+    """When a shop stock movement is created, update ShopStock current_quantity."""
+    if created:
+        stock = instance.shop_stock
+        if instance.movement_type == 'in':
+            new_balance = stock.current_quantity + instance.quantity
+        else:
+            new_balance = stock.current_quantity - instance.quantity
+
+        new_balance = max(new_balance, 0)
+
+        ShopStockMovement.objects.filter(pk=instance.pk).update(
+            balance_after=new_balance
+        )
+        ShopStock.objects.filter(pk=stock.pk).update(
+            current_quantity=new_balance
+        )
+
+
+# ── SHOP SALE ────────────────────────────────────────────────────
+
+@receiver(post_save, sender=ShopSale)
+def compute_shop_sale_totals(sender, instance, created, **kwargs):
+    """Auto-compute total_amount and pricing_type on ShopSale."""
+    if created:
+        total = instance.quantity * instance.price_per_unit
+        pricing_type = 'wholesale' if instance.quantity >= instance.product.wholesale_threshold else 'retail'
+        ShopSale.objects.filter(pk=instance.pk).update(
+            total_amount=total,
+            pricing_type=pricing_type
+        )
+
+
+# ── OLD LAYER SALE ───────────────────────────────────────────────
+
+@receiver(post_save, sender=OldLayerSale)
+def compute_old_layer_sale_total(sender, instance, **kwargs):
+    """Auto-compute total_amount on OldLayerSale."""
+    total = instance.quantity_sold * instance.price_per_bird
+    OldLayerSale.objects.filter(pk=instance.pk).update(total_amount=total)
+
+
+# ── WORKER SALARY ────────────────────────────────────────────────
+
+@receiver(post_save, sender=WorkerSalary)
+def compute_net_salary(sender, instance, **kwargs):
+    """Auto-compute net_salary on WorkerSalary."""
+    net = instance.basic_salary + instance.allowances - instance.deductions
+    WorkerSalary.objects.filter(pk=instance.pk).update(net_salary=net)

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
-    ListView, DetailView, CreateView, UpdateView
+    ListView, DetailView, CreateView, UpdateView,  DeleteView
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
@@ -30,6 +30,8 @@ from .models import (
     EggStorageConfirmation, EggTransfer,
     CleaningLog, MaintenanceFault, ManureLog,
     MaintenanceRepair, MaintenanceConfirmation,
+    Customer, ShopProduct, ShopStock, ShopStockMovement,
+    ShopSale, ShopOutflow, OldLayerSale, WorkerSalary,
 )
 
 
@@ -39,28 +41,112 @@ from .models import (
 
 @login_required
 def dashboard(request):
+    from datetime import timedelta
     today = date.today()
+    week_start = today - timedelta(days=7)
+    month_start = today.replace(day=1)
+    view = request.GET.get('view', 'farm')
+
+    # ── FARM DATA ────────────────────────────────────────────────
+    total_birds = Flock.objects.filter(
+        is_active=True).aggregate(
+        Sum('current_count'))['current_count__sum'] or 0
+
+    todays_eggs = EggCollection.objects.filter(
+        collection_date=today).aggregate(
+        Sum('observed_count'))['observed_count__sum'] or 0
+
+    weekly_eggs = EggCollection.objects.filter(
+        collection_date__gte=week_start).aggregate(
+        Sum('observed_count'))['observed_count__sum'] or 0
+
+    last_week_start = week_start - timedelta(days=7)
+    last_week_eggs = EggCollection.objects.filter(
+        collection_date__gte=last_week_start,
+        collection_date__lt=week_start).aggregate(
+        Sum('observed_count'))['observed_count__sum'] or 0
+
+    weekly_lay_pct = round(
+        (weekly_eggs / (total_birds * 7)) * 100, 1
+    ) if total_birds > 0 else 0
+    last_week_lay_pct = round(
+        (last_week_eggs / (total_birds * 7)) * 100, 1
+    ) if total_birds > 0 else 0
+    lay_trend = 'up' if weekly_lay_pct >= last_week_lay_pct else 'down'
+
+    todays_mortality = MortalityRecord.objects.filter(
+        date_found=today).aggregate(
+        Sum('total_count'))['total_count__sum'] or 0
+
+    # ── SHOP DATA ────────────────────────────────────────────────
+    todays_sales = ShopSale.objects.filter(sale_date=today)
+    todays_total = todays_sales.aggregate(
+        Sum('total_amount'))['total_amount__sum'] or 0
+    todays_cash = todays_sales.filter(
+        payment_method='cash').aggregate(
+        Sum('total_amount'))['total_amount__sum'] or 0
+    todays_transfer = todays_sales.filter(
+        payment_method='transfer').aggregate(
+        Sum('total_amount'))['total_amount__sum'] or 0
+    todays_pos = todays_sales.filter(
+        payment_method='pos').aggregate(
+        Sum('total_amount'))['total_amount__sum'] or 0
+
+    todays_outflow = ShopOutflow.objects.filter(
+        outflow_date=today).aggregate(
+        Sum('amount'))['amount__sum'] or 0
+
+    weekly_sales = ShopSale.objects.filter(
+        sale_date__gte=week_start).aggregate(
+        Sum('total_amount'))['total_amount__sum'] or 0
+    weekly_outflow = ShopOutflow.objects.filter(
+        outflow_date__gte=week_start).aggregate(
+        Sum('amount'))['amount__sum'] or 0
+    weekly_profit = weekly_sales - weekly_outflow
+
+    monthly_sales = ShopSale.objects.filter(
+        sale_date__gte=month_start).aggregate(
+        Sum('total_amount'))['total_amount__sum'] or 0
+    monthly_outflow = ShopOutflow.objects.filter(
+        outflow_date__gte=month_start).aggregate(
+        Sum('amount'))['amount__sum'] or 0
+    monthly_profit = monthly_sales - monthly_outflow
+
+    outstanding_deliveries = ShopSale.objects.filter(
+        delivered=False).count()
+    customers_today = todays_sales.values('customer').distinct().count()
+    low_stock = ShopStock.objects.filter(
+        current_quantity__lte=F('reorder_threshold')
+    ).select_related('product')
+
     context = {
         'today': today,
-        'total_flocks': Flock.objects.filter(is_active=True).count(),
-        'total_birds': Flock.objects.filter(
-            is_active=True).aggregate(
-            Sum('current_count'))['current_count__sum'] or 0,
-        'todays_eggs': EggCollection.objects.filter(
-            collection_date=today).aggregate(
-            Sum('observed_count'))['observed_count__sum'] or 0,
-        'todays_mortality': MortalityRecord.objects.filter(
-            date_found=today).aggregate(
-            Sum('total_count'))['total_count__sum'] or 0,
-        'open_faults': MaintenanceFault.objects.filter(
-            status='open').count(),
+        'view': view,
+        # Farm
+        'total_birds': total_birds,
+        'todays_eggs': todays_eggs,
+        'weekly_eggs': weekly_eggs,
+        'weekly_lay_pct': weekly_lay_pct,
+        'last_week_lay_pct': last_week_lay_pct,
+        'lay_trend': lay_trend,
+        'todays_mortality': todays_mortality,
+        'open_faults': MaintenanceFault.objects.filter(status='open').count(),
         'pending_cleaning': CleaningLog.objects.filter(
             confirmation_status='pending').count(),
-        'low_feed_stock': FeedStock.objects.filter(
-            current_balance__lte=F('reorder_threshold')).count(),
-        'high_mortality_alerts': MortalityRecord.objects.filter(
-            is_high_mortality=True,
-            date_found=today).count(),
+        'high_mortality_today': MortalityRecord.objects.filter(
+            is_high_mortality=True, date_found=today).count(),
+        'active_flocks': Flock.objects.filter(is_active=True).count(),
+        # Shop
+        'todays_total': todays_total,
+        'todays_cash': todays_cash,
+        'todays_transfer': todays_transfer,
+        'todays_pos': todays_pos,
+        'todays_outflow': todays_outflow,
+        'weekly_profit': weekly_profit,
+        'monthly_profit': monthly_profit,
+        'outstanding_deliveries': outstanding_deliveries,
+        'customers_today': customers_today,
+        'low_stock': low_stock,
     }
     context.update(get_user_context(request.user))
     return render(request, 'core/dashboard.html', context)
@@ -766,6 +852,18 @@ class MortalityRecordCreateView(LoginRequiredMixin, CreateView):
         context['title'] = 'Record Mortality'
         context['cancel_url'] = reverse_lazy('mortalityrecord-list')
         return context
+    
+class MortalityRecordDeleteView(LoginRequiredMixin, DeleteView):
+    model = MortalityRecord
+    template_name = 'core/confirm_delete.html'
+    success_url = reverse_lazy('mortalityrecord-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Delete Mortality Record'
+        context['message'] = f'Are you sure you want to delete the mortality record for {self.object.pen.name} on {self.object.date_found}?'
+        context['cancel_url'] = reverse_lazy('mortalityrecord-list')
+        return context
 
 class MortalityAlertListView(LoginRequiredMixin, ListView):
     model = MortalityAlert
@@ -1267,3 +1365,350 @@ class MaintenanceConfirmationCreateView(LoginRequiredMixin, CreateView):
         context['cancel_url'] = reverse_lazy('maintenanceconfirmation-list')
         return context
 
+# ══════════════════════════════════════════════════════════════════
+# FARM DASHBOARD
+# ══════════════════════════════════════════════════════════════════
+
+@login_required
+def farm_dashboard(request):
+    from datetime import timedelta
+    from django.db.models import Sum
+    today = date.today()
+    week_start = today - timedelta(days=7)
+
+    total_birds = Flock.objects.filter(
+        is_active=True).aggregate(
+        Sum('current_count'))['current_count__sum'] or 0
+
+    todays_eggs = EggCollection.objects.filter(
+        collection_date=today).aggregate(
+        Sum('observed_count'))['observed_count__sum'] or 0
+
+    weekly_eggs = EggCollection.objects.filter(
+        collection_date__gte=week_start).aggregate(
+        Sum('observed_count'))['observed_count__sum'] or 0
+
+    last_week_start = week_start - timedelta(days=7)
+    last_week_eggs = EggCollection.objects.filter(
+        collection_date__gte=last_week_start,
+        collection_date__lt=week_start).aggregate(
+        Sum('observed_count'))['observed_count__sum'] or 0
+
+    weekly_lay_pct = round((weekly_eggs / (total_birds * 7)) * 100, 1) if total_birds > 0 else 0
+    last_week_lay_pct = round((last_week_eggs / (total_birds * 7)) * 100, 1) if total_birds > 0 else 0
+    lay_trend = 'up' if weekly_lay_pct >= last_week_lay_pct else 'down'
+
+    todays_mortality = MortalityRecord.objects.filter(
+        date_found=today).aggregate(
+        Sum('total_count'))['total_count__sum'] or 0
+
+    context = {
+        'today': today,
+        'total_birds': total_birds,
+        'todays_eggs': todays_eggs,
+        'weekly_eggs': weekly_eggs,
+        'weekly_lay_pct': weekly_lay_pct,
+        'last_week_lay_pct': last_week_lay_pct,
+        'lay_trend': lay_trend,
+        'todays_mortality': todays_mortality,
+        'open_faults': MaintenanceFault.objects.filter(status='open').count(),
+        'pending_cleaning': CleaningLog.objects.filter(
+            confirmation_status='pending').count(),
+        'high_mortality_today': MortalityRecord.objects.filter(
+            is_high_mortality=True, date_found=today).count(),
+        'active_flocks': Flock.objects.filter(is_active=True).count(),
+    }
+    context.update(get_user_context(request.user))
+    return render(request, 'core/farm_dashboard.html', context)
+
+
+# ══════════════════════════════════════════════════════════════════
+# SHOP DASHBOARD
+# ══════════════════════════════════════════════════════════════════
+
+@login_required
+def shop_dashboard(request):
+    from datetime import timedelta
+    from django.db.models import Sum
+    today = date.today()
+    week_start = today - timedelta(days=7)
+    month_start = today.replace(day=1)
+
+    todays_sales = ShopSale.objects.filter(sale_date=today)
+    todays_total = todays_sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+    todays_cash = todays_sales.filter(payment_method='cash').aggregate(
+        Sum('total_amount'))['total_amount__sum'] or 0
+    todays_transfer = todays_sales.filter(payment_method='transfer').aggregate(
+        Sum('total_amount'))['total_amount__sum'] or 0
+    todays_pos = todays_sales.filter(payment_method='pos').aggregate(
+        Sum('total_amount'))['total_amount__sum'] or 0
+
+    todays_outflow = ShopOutflow.objects.filter(
+        outflow_date=today).aggregate(
+        Sum('amount'))['amount__sum'] or 0
+
+    weekly_sales = ShopSale.objects.filter(
+        sale_date__gte=week_start).aggregate(
+        Sum('total_amount'))['total_amount__sum'] or 0
+    weekly_outflow = ShopOutflow.objects.filter(
+        outflow_date__gte=week_start).aggregate(
+        Sum('amount'))['amount__sum'] or 0
+    weekly_profit = weekly_sales - weekly_outflow
+
+    monthly_sales = ShopSale.objects.filter(
+        sale_date__gte=month_start).aggregate(
+        Sum('total_amount'))['total_amount__sum'] or 0
+    monthly_outflow = ShopOutflow.objects.filter(
+        outflow_date__gte=month_start).aggregate(
+        Sum('amount'))['amount__sum'] or 0
+    monthly_profit = monthly_sales - monthly_outflow
+
+    outstanding_deliveries = ShopSale.objects.filter(
+        delivered=False).count()
+
+    customers_today = todays_sales.values('customer').distinct().count()
+
+    low_stock = ShopStock.objects.filter(
+        current_quantity__lte=F('reorder_threshold')
+    ).select_related('product')
+
+    context = {
+        'today': today,
+        'todays_total': todays_total,
+        'todays_cash': todays_cash,
+        'todays_transfer': todays_transfer,
+        'todays_pos': todays_pos,
+        'todays_outflow': todays_outflow,
+        'weekly_profit': weekly_profit,
+        'monthly_profit': monthly_profit,
+        'outstanding_deliveries': outstanding_deliveries,
+        'customers_today': customers_today,
+        'low_stock': low_stock,
+    }
+    context.update(get_user_context(request.user))
+    return render(request, 'core/shop_dashboard.html', context)
+
+
+# ══════════════════════════════════════════════════════════════════
+# CUSTOMER
+# ══════════════════════════════════════════════════════════════════
+
+class CustomerListView(LoginRequiredMixin, ListView):
+    model = Customer
+    template_name = 'core/customer_list.html'
+    context_object_name = 'customers'
+
+
+class CustomerDetailView(LoginRequiredMixin, DetailView):
+    model = Customer
+    template_name = 'core/customer_detail.html'
+    context_object_name = 'customer'
+
+
+class CustomerCreateView(LoginRequiredMixin, CreateView):
+    model = Customer
+    template_name = 'core/form.html'
+    fields = ['name', 'phone', 'address', 'customer_type', 'notes']
+    success_url = reverse_lazy('customer-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Add Customer'
+        context['cancel_url'] = reverse_lazy('customer-list')
+        return context
+
+
+class CustomerUpdateView(LoginRequiredMixin, UpdateView):
+    model = Customer
+    template_name = 'core/form.html'
+    fields = ['name', 'phone', 'address', 'customer_type', 'is_active', 'notes']
+    success_url = reverse_lazy('customer-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Edit Customer'
+        context['cancel_url'] = reverse_lazy('customer-list')
+        return context
+
+
+# ══════════════════════════════════════════════════════════════════
+# SHOP PRODUCT
+# ══════════════════════════════════════════════════════════════════
+
+class ShopProductListView(LoginRequiredMixin, ListView):
+    model = ShopProduct
+    template_name = 'core/shopproduct_list.html'
+    context_object_name = 'products'
+
+
+class ShopProductCreateView(LoginRequiredMixin, CreateView):
+    model = ShopProduct
+    template_name = 'core/form.html'
+    fields = ['name', 'product_type', 'unit', 'wholesale_price',
+              'retail_price', 'wholesale_threshold', 'notes']
+    success_url = reverse_lazy('shopproduct-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Add Shop Product'
+        context['cancel_url'] = reverse_lazy('shopproduct-list')
+        return context
+
+
+class ShopProductUpdateView(LoginRequiredMixin, UpdateView):
+    model = ShopProduct
+    template_name = 'core/form.html'
+    fields = ['name', 'product_type', 'unit', 'wholesale_price',
+              'retail_price', 'wholesale_threshold', 'is_active', 'notes']
+    success_url = reverse_lazy('shopproduct-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Edit Shop Product'
+        context['cancel_url'] = reverse_lazy('shopproduct-list')
+        return context
+
+
+# ══════════════════════════════════════════════════════════════════
+# SHOP STOCK
+# ══════════════════════════════════════════════════════════════════
+
+class ShopStockListView(LoginRequiredMixin, ListView):
+    model = ShopStock
+    template_name = 'core/shopstock_list.html'
+    context_object_name = 'stocks'
+
+
+class ShopStockDetailView(LoginRequiredMixin, DetailView):
+    model = ShopStock
+    template_name = 'core/shopstock_detail.html'
+    context_object_name = 'stock'
+
+
+# ══════════════════════════════════════════════════════════════════
+# SHOP SALE
+# ══════════════════════════════════════════════════════════════════
+
+class ShopSaleListView(LoginRequiredMixin, ListView):
+    model = ShopSale
+    template_name = 'core/shopsale_list.html'
+    context_object_name = 'sales'
+    ordering = ['-sale_date']
+
+
+class ShopSaleDetailView(LoginRequiredMixin, DetailView):
+    model = ShopSale
+    template_name = 'core/shopsale_detail.html'
+    context_object_name = 'sale'
+
+@login_required
+def shop_sale_receipt(request, pk):
+    sale = get_object_or_404(ShopSale, pk=pk)
+    context = {
+        'sale': sale,
+    }
+    return render(request, 'core/shopsale_receipt.html', context)
+
+class ShopSaleCreateView(LoginRequiredMixin, CreateView):
+    model = ShopSale
+    template_name = 'core/form.html'
+    fields = ['customer', 'customer_name_walkin', 'sale_date', 'product',
+              'quantity', 'price_per_unit', 'payment_method',
+              'payment_reference', 'delivered', 'delivery_date',
+              'recorded_by', 'notes']
+    success_url = reverse_lazy('shopsale-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Sale'
+        context['cancel_url'] = reverse_lazy('shopsale-list')
+        return context
+
+
+# ══════════════════════════════════════════════════════════════════
+# SHOP OUTFLOW
+# ══════════════════════════════════════════════════════════════════
+
+class ShopOutflowListView(LoginRequiredMixin, ListView):
+    model = ShopOutflow
+    template_name = 'core/shopoutflow_list.html'
+    context_object_name = 'outflows'
+    ordering = ['-outflow_date']
+
+
+class ShopOutflowCreateView(LoginRequiredMixin, CreateView):
+    model = ShopOutflow
+    template_name = 'core/form.html'
+    fields = ['outflow_date', 'outflow_type', 'amount', 'paid_to',
+              'authorized_by', 'recorded_by', 'notes']
+    success_url = reverse_lazy('shopoutflow-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Outflow'
+        context['cancel_url'] = reverse_lazy('shopoutflow-list')
+        return context
+
+
+# ══════════════════════════════════════════════════════════════════
+# OLD LAYER SALE
+# ══════════════════════════════════════════════════════════════════
+
+class OldLayerSaleListView(LoginRequiredMixin, ListView):
+    model = OldLayerSale
+    template_name = 'core/oldlayersale_list.html'
+    context_object_name = 'sales'
+    ordering = ['-sale_date']
+
+
+class OldLayerSaleCreateView(LoginRequiredMixin, CreateView):
+    model = OldLayerSale
+    template_name = 'core/form.html'
+    fields = ['flock', 'sale_date', 'quantity_sold', 'price_per_bird',
+              'buyer_name', 'payment_method', 'payment_reference',
+              'recorded_by', 'notes']
+    success_url = reverse_lazy('oldlayersale-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Layer Sale'
+        context['cancel_url'] = reverse_lazy('oldlayersale-list')
+        return context
+
+
+# ══════════════════════════════════════════════════════════════════
+# WORKER SALARY
+# ══════════════════════════════════════════════════════════════════
+
+class WorkerSalaryListView(LoginRequiredMixin, ListView):
+    model = WorkerSalary
+    template_name = 'core/workersalary_list.html'
+    context_object_name = 'salaries'
+    ordering = ['-year', '-month']
+
+
+class WorkerSalaryCreateView(LoginRequiredMixin, CreateView):
+    model = WorkerSalary
+    template_name = 'core/form.html'
+    fields = ['worker', 'month', 'year', 'basic_salary', 'allowances',
+              'deductions', 'payment_date', 'payment_method', 'paid_by', 'notes']
+    success_url = reverse_lazy('workersalary-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Salary Payment'
+        context['cancel_url'] = reverse_lazy('workersalary-list')
+        return context
+
+class MortalityRecordUpdateView(LoginRequiredMixin, UpdateView):
+    model = MortalityRecord
+    template_name = 'core/form.html'
+    fields = ['flock', 'pen', 'date_found', 'discovered_by',
+              'recorded_by', 'observed_at', 'notes']
+    success_url = reverse_lazy('mortalityrecord-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Edit Mortality Record'
+        context['cancel_url'] = reverse_lazy('mortalityrecord-list')
+        return context

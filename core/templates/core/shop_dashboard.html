@@ -1,32 +1,11 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Dashboard — Farm ERP{% endblock %}
+{% block title %}Shop Dashboard — Farm ERP{% endblock %}
 
 {% block content %}
+<h4 class="mb-4">Shop Dashboard</h4>
 
-<!-- TOGGLE BUTTONS -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4>
-        {% if view == 'shop' %}
-            Shop Dashboard
-        {% else %}
-            Farm Dashboard
-        {% endif %}
-    </h4>
-    <div class="btn-group">
-        <a href="?view=farm" class="btn {% if view != 'shop' %}btn-success{% else %}btn-outline-success{% endif %}">
-            <i class="bi bi-tree"></i> Farm
-        </a>
-        <a href="?view=shop" class="btn {% if view == 'shop' %}btn-success{% else %}btn-outline-success{% endif %}">
-            <i class="bi bi-shop"></i> Shop
-        </a>
-    </div>
-</div>
-
-{% if view == 'shop' %}
-
-<!-- ══ SHOP DASHBOARD ══════════════════════════════════════════ -->
-
+<!-- TODAY'S SALES -->
 <div class="card mb-4">
     <div class="card-header">Today's Sales — {{ today }}</div>
     <div class="card-body">
@@ -59,6 +38,7 @@
     </div>
 </div>
 
+<!-- OUTFLOW AND CUSTOMERS -->
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
         <div class="card text-center p-3">
@@ -80,6 +60,7 @@
     </div>
 </div>
 
+<!-- PROFIT -->
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-4">
         <div class="card text-center p-3">
@@ -99,6 +80,7 @@
     </div>
 </div>
 
+<!-- LOW STOCK -->
 {% if low_stock %}
 <div class="card mb-4">
     <div class="card-header text-danger">
@@ -125,78 +107,6 @@
         </table>
     </div>
 </div>
-{% endif %}
-
-{% else %}
-
-<!-- ══ FARM DASHBOARD ══════════════════════════════════════════ -->
-
-<div class="card mb-4">
-    <div class="card-header">Weekly Lay Percentage</div>
-    <div class="card-body text-center">
-        <div class="fs-1 fw-bold text-success">
-            {{ weekly_lay_pct }}%
-            {% if lay_trend == 'up' %}
-                <i class="bi bi-arrow-up-circle-fill text-success fs-3"></i>
-            {% else %}
-                <i class="bi bi-arrow-down-circle-fill text-danger fs-3"></i>
-            {% endif %}
-        </div>
-        <div class="text-muted">Last week: {{ last_week_lay_pct }}%</div>
-    </div>
-</div>
-
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="card text-center p-3">
-            <div class="fs-2 fw-bold text-success">{{ total_birds }}</div>
-            <div class="text-muted small">Total Live Birds</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center p-3">
-            <div class="fs-2 fw-bold text-success">{{ todays_eggs }}</div>
-            <div class="text-muted small">Eggs Collected Today</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center p-3">
-            <div class="fs-2 fw-bold text-success">{{ weekly_eggs }}</div>
-            <div class="text-muted small">Eggs This Week</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center p-3">
-            <div class="fs-2 fw-bold text-success">{{ active_flocks }}</div>
-            <div class="text-muted small">Active Flocks</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center p-3">
-            <div class="fs-2 fw-bold text-danger">{{ todays_mortality }}</div>
-            <div class="text-muted small">Mortality Today</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center p-3">
-            <div class="fs-2 fw-bold text-danger">{{ high_mortality_today }}</div>
-            <div class="text-muted small">High Mortality Alerts</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center p-3">
-            <div class="fs-2 fw-bold text-warning">{{ open_faults }}</div>
-            <div class="text-muted small">Open Faults</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center p-3">
-            <div class="fs-2 fw-bold text-warning">{{ pending_cleaning }}</div>
-            <div class="text-muted small">Pending Cleaning</div>
-        </div>
-    </div>
-</div>
-
 {% endif %}
 
 <p class="text-muted small">Last updated: {{ today }}</p>

@@ -39,7 +39,7 @@
                                     {{ hidden }}
                                 {% endfor %}
                             </div>
-                            {% if formset.can_delete %}
+                            {% if formset.can_delete and item_form.instance.pk %}
                             <div class="text-end">
                                 <label class="text-danger small">
                                     {{ item_form.DELETE }} Remove this item

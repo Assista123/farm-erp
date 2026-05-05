@@ -1410,3 +1410,314 @@ class MaintenanceConfirmation(models.Model):
 
     def __str__(self):
         return f"Confirmation - {self.repair.fault.pen.name} on {self.inspection_date}"
+
+# ══════════════════════════════════════════════════════════════════
+# SALES MODULE
+# ══════════════════════════════════════════════════════════════════
+
+class Customer(models.Model):
+    CUSTOMER_TYPE_CHOICES = [
+        ('wholesale', 'Wholesale'),
+        ('retail', 'Retail'),
+        ('both', 'Both'),
+    ]
+
+    name = models.CharField(max_length=200)
+    phone = models.CharField(max_length=20, blank=True)
+    address = models.TextField(blank=True)
+    customer_type = models.CharField(
+        max_length=20,
+        choices=CUSTOMER_TYPE_CHOICES,
+        default='wholesale'
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.get_customer_type_display()})"
+
+
+class ShopProduct(models.Model):
+    PRODUCT_TYPE_CHOICES = [
+        ('egg', 'Egg'),
+        ('drug', 'Drug / Supplement'),
+        ('feed', 'Feed'),
+        ('other', 'Other'),
+    ]
+
+    name = models.CharField(max_length=200)
+    product_type = models.CharField(max_length=20, choices=PRODUCT_TYPE_CHOICES)
+    unit = models.CharField(
+        max_length=50,
+        help_text="e.g. crate, bag, bottle, sachet"
+    )
+    wholesale_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    retail_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    wholesale_threshold = models.PositiveIntegerField(
+        default=5,
+        help_text="Minimum quantity to qualify for wholesale price"
+    )
+    is_active = models.BooleanField(default=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.get_product_type_display()})"
+
+
+class ShopStock(models.Model):
+    product = models.OneToOneField(
+        ShopProduct,
+        on_delete=models.PROTECT,
+        related_name='stock'
+    )
+    current_quantity = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        editable=False
+    )
+    reorder_threshold = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.product.name} — {self.current_quantity} {self.product.unit}"
+
+
+class ShopStockMovement(models.Model):
+    MOVEMENT_TYPE_CHOICES = [
+        ('in', 'Stock In'),
+        ('out', 'Stock Out'),
+    ]
+
+    MOVEMENT_REASON_CHOICES = [
+        ('farm_delivery', 'Farm Delivery'),
+        ('external_purchase', 'External Purchase'),
+        ('sale', 'Sale'),
+        ('adjustment', 'Adjustment'),
+        ('other', 'Other'),
+    ]
+
+    shop_stock = models.ForeignKey(
+        ShopStock,
+        on_delete=models.PROTECT,
+        related_name='movements'
+    )
+    movement_type = models.CharField(max_length=10, choices=MOVEMENT_TYPE_CHOICES)
+    movement_reason = models.CharField(max_length=30, choices=MOVEMENT_REASON_CHOICES)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    balance_after = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        editable=False,
+        default=0
+    )
+    recorded_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='shop_stock_movements'
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.get_movement_type_display()} — {self.product.name} — {self.quantity}"
+
+
+class ShopSale(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ('cash', 'Cash'),
+        ('transfer', 'Bank Transfer'),
+        ('pos', 'POS'),
+    ]
+
+    PRICING_TYPE_CHOICES = [
+        ('wholesale', 'Wholesale'),
+        ('retail', 'Retail'),
+    ]
+
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.PROTECT,
+        related_name='shop_sales',
+        null=True,
+        blank=True,
+        help_text="Leave blank for walk-in customers"
+    )
+    customer_name_walkin = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Name for walk-in customers not in the system"
+    )
+    sale_date = models.DateField()
+    product = models.ForeignKey(
+        ShopProduct,
+        on_delete=models.PROTECT,
+        related_name='sales'
+    )
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    pricing_type = models.CharField(
+        max_length=20,
+        choices=PRICING_TYPE_CHOICES,
+        editable=False
+    )
+    price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        editable=False,
+        default=0
+    )
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
+    payment_reference = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Transfer reference or POS receipt number"
+    )
+    delivered = models.BooleanField(
+        default=False,
+        help_text="Has the product been delivered to the customer"
+    )
+    delivery_date = models.DateField(null=True, blank=True)
+    recorded_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='shop_sales_recorded'
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        customer = self.customer.name if self.customer else self.customer_name_walkin or "Walk-in"
+        return f"{customer} — {self.product.name} — {self.sale_date}"
+
+
+class ShopOutflow(models.Model):
+    OUTFLOW_TYPE_CHOICES = [
+        ('cash_withdrawal', 'Cash Withdrawal'),
+        ('salary', 'Salary Payment'),
+        ('restock', 'External Restock Payment'),
+        ('other', 'Other'),
+    ]
+
+    outflow_date = models.DateField()
+    outflow_type = models.CharField(max_length=20, choices=OUTFLOW_TYPE_CHOICES)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    paid_to = models.CharField(max_length=200, blank=True)
+    authorized_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='shop_outflows_authorized'
+    )
+    recorded_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='shop_outflows_recorded'
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.get_outflow_type_display()} — {self.amount} on {self.outflow_date}"
+
+
+class OldLayerSale(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ('cash', 'Cash'),
+        ('transfer', 'Bank Transfer'),
+        ('pos', 'POS'),
+    ]
+
+    flock = models.ForeignKey(
+        Flock,
+        on_delete=models.PROTECT,
+        related_name='old_layer_sales'
+    )
+    sale_date = models.DateField()
+    quantity_sold = models.PositiveIntegerField()
+    price_per_bird = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        editable=False,
+        default=0
+    )
+    buyer_name = models.CharField(max_length=200)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
+    payment_reference = models.CharField(max_length=200, blank=True)
+    recorded_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='old_layer_sales_recorded'
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Layer Sale — {self.flock} — {self.quantity_sold} birds on {self.sale_date}"
+
+
+class WorkerSalary(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ('cash', 'Cash'),
+        ('transfer', 'Bank Transfer'),
+    ]
+
+    MONTH_CHOICES = [
+        (1, 'January'), (2, 'February'), (3, 'March'),
+        (4, 'April'), (5, 'May'), (6, 'June'),
+        (7, 'July'), (8, 'August'), (9, 'September'),
+        (10, 'October'), (11, 'November'), (12, 'December'),
+    ]
+
+    worker = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='salaries'
+    )
+    month = models.PositiveIntegerField(choices=MONTH_CHOICES)
+    year = models.PositiveIntegerField()
+    basic_salary = models.DecimalField(max_digits=10, decimal_places=2)
+    allowances = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    deductions = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    net_salary = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        editable=False,
+        default=0
+    )
+    payment_date = models.DateField()
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
+    paid_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='salaries_paid'
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ['worker', 'month', 'year']
+
+    def __str__(self):
+        return f"{self.worker.full_name} — {self.get_month_display()} {self.year}"

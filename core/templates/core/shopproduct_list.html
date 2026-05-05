@@ -1,0 +1,59 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Shop Products — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Shop Products</h4>
+    <a href="{% url 'shopproduct-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Add Product
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Unit</th>
+                        <th>Wholesale Price</th>
+                        <th>Retail Price</th>
+                        <th>Wholesale Min</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.get_product_type_display }}</td>
+                        <td>{{ product.unit }}</td>
+                        <td>₦{{ product.wholesale_price }}</td>
+                        <td>₦{{ product.retail_price }}</td>
+                        <td>{{ product.wholesale_threshold }} {{ product.unit }}</td>
+                        <td>
+                            {% if product.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'shopproduct-update' product.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">No products found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

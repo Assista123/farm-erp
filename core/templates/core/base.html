@@ -29,11 +29,14 @@
 
     <div class="d-flex align-items-center text-white">
         <span class="me-3"><i class="bi bi-person-circle"></i> {{ request.user.username }}</span>
-        <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
+        <form method ="post" action="{% url 'logout' %}" class="d-inline">
+            {% csrf_token %}
+         <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+        </form>
     </div>
 </nav>
 
-<<div class="container-fluid">
+<div class="container-fluid">
     <div class="row">
 
         <!-- DESKTOP SIDEBAR (md and above) -->
@@ -240,6 +243,48 @@
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="{% url 'report-pending' %}">
                         <i class="bi bi-hourglass"></i> Pending Confirmations
+                    </a>
+                </li>
+                <li class="nav-item mt-3 mb-1">
+                    <span class="text-muted small px-3">DASHBOARDS</span>
+                </li>
+
+                <li class="nav-item mt-3 mb-1">
+                    <span class="text-muted small px-3">SALES</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'customer-list' %}">
+                        <i class="bi bi-person-lines-fill"></i> Customers
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'shopsale-list' %}">
+                        <i class="bi bi-receipt"></i> Shop Sales
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'shopstock-list' %}">
+                        <i class="bi bi-boxes"></i> Shop Stock
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'shopproduct-list' %}">
+                        <i class="bi bi-tags"></i> Shop Products
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'shopoutflow-list' %}">
+                        <i class="bi bi-cash-stack"></i> Outflows
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'oldlayersale-list' %}">
+                        <i class="bi bi-egg"></i> Layer Sales
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'workersalary-list' %}">
+                        <i class="bi bi-wallet2"></i> Salaries
                     </a>
                 </li>
                 {% endif %}
@@ -460,6 +505,45 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" href="{% url 'report-pending' %}">
                             <i class="bi bi-hourglass"></i> Pending Confirmations
+                        </a>
+                    </li>
+
+                    <li class="nav-item mt-3 mb-1">
+                        <span class="text-muted small px-3">SALES</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="{% url 'customer-list' %}">
+                            <i class="bi bi-person-lines-fill"></i> Customers
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="{% url 'shopsale-list' %}">
+                            <i class="bi bi-receipt"></i> Shop Sales
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="{% url 'shopstock-list' %}">
+                            <i class="bi bi-boxes"></i> Shop Stock
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="{% url 'shopproduct-list' %}">
+                            <i class="bi bi-tags"></i> Shop Products
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="{% url 'shopoutflow-list' %}">
+                            <i class="bi bi-cash-stack"></i> Outflows
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="{% url 'oldlayersale-list' %}">
+                            <i class="bi bi-egg"></i> Layer Sales
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="{% url 'workersalary-list' %}">
+                            <i class="bi bi-wallet2"></i> Salaries
                         </a>
                     </li>
                     {% endif %}

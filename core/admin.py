@@ -17,6 +17,8 @@ from .models import (
     MortalityRecord, MortalityRecordItem, MortalityAlert,
     CleaningLog, ManureLog,
     MaintenanceFault, MaintenanceRepair, MaintenanceConfirmation,
+     Customer, ShopProduct, ShopStock, ShopStockMovement,
+    ShopSale, ShopOutflow, OldLayerSale, WorkerSalary,
 )
 
 
@@ -271,3 +273,61 @@ class MaintenanceConfirmationAdmin(admin.ModelAdmin):
     list_display = ['repair', 'inspection_date', 'fault_resolved',
                     'follow_up_required', 'confirmed_by']
     list_filter = ['fault_resolved', 'follow_up_required']
+
+@admin.register(Customer)
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ['name', 'phone', 'customer_type', 'is_active']
+    list_filter = ['customer_type', 'is_active']
+    search_fields = ['name', 'phone']
+
+
+@admin.register(ShopProduct)
+class ShopProductAdmin(admin.ModelAdmin):
+    list_display = ['name', 'product_type', 'unit', 'wholesale_price',
+                    'retail_price', 'wholesale_threshold', 'is_active']
+    list_filter = ['product_type', 'is_active']
+    search_fields = ['name']
+
+
+@admin.register(ShopStock)
+class ShopStockAdmin(admin.ModelAdmin):
+    list_display = ['product', 'current_quantity', 'reorder_threshold']
+    readonly_fields = ['current_quantity']
+
+
+@admin.register(ShopStockMovement)
+class ShopStockMovementAdmin(admin.ModelAdmin):
+    list_display = ['shop_stock', 'movement_type', 'movement_reason',
+                    'quantity', 'balance_after', 'recorded_at']
+    list_filter = ['movement_type', 'movement_reason']
+    readonly_fields = ['balance_after']
+
+
+@admin.register(ShopSale)
+class ShopSaleAdmin(admin.ModelAdmin):
+    list_display = ['sale_date', 'customer', 'product', 'quantity',
+                    'total_amount', 'payment_method', 'delivered']
+    list_filter = ['sale_date', 'payment_method', 'delivered']
+    readonly_fields = ['total_amount', 'pricing_type']
+
+
+@admin.register(ShopOutflow)
+class ShopOutflowAdmin(admin.ModelAdmin):
+    list_display = ['outflow_date', 'outflow_type', 'amount',
+                    'paid_to', 'authorized_by']
+    list_filter = ['outflow_type', 'outflow_date']
+
+
+@admin.register(OldLayerSale)
+class OldLayerSaleAdmin(admin.ModelAdmin):
+    list_display = ['sale_date', 'flock', 'quantity_sold',
+                    'price_per_bird', 'total_amount', 'buyer_name']
+    readonly_fields = ['total_amount']
+
+
+@admin.register(WorkerSalary)
+class WorkerSalaryAdmin(admin.ModelAdmin):
+    list_display = ['worker', 'month', 'year', 'basic_salary',
+                    'net_salary', 'payment_date']
+    list_filter = ['month', 'year']
+    readonly_fields = ['net_salary']

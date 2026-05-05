@@ -1,0 +1,53 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Worker Salaries — Farm ERP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Worker Salaries</h4>
+    <a href="{% url 'workersalary-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Record Salary Payment
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Worker</th>
+                        <th>Month</th>
+                        <th>Year</th>
+                        <th>Basic</th>
+                        <th>Allowances</th>
+                        <th>Deductions</th>
+                        <th>Net</th>
+                        <th>Payment Date</th>
+                        <th>Method</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for salary in salaries %}
+                    <tr>
+                        <td>{{ salary.worker.full_name }}</td>
+                        <td>{{ salary.get_month_display }}</td>
+                        <td>{{ salary.year }}</td>
+                        <td>₦{{ salary.basic_salary }}</td>
+                        <td>₦{{ salary.allowances }}</td>
+                        <td>₦{{ salary.deductions }}</td>
+                        <td>₦{{ salary.net_salary }}</td>
+                        <td>{{ salary.payment_date }}</td>
+                        <td>{{ salary.get_payment_method_display }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">No salary records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

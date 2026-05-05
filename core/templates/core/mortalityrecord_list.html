@@ -40,11 +40,14 @@
                     <td>{{ record.discovered_by.full_name }}</td>
                     <td>
                         <a href="{% url 'mortalityrecord-detail' record.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                        <a href="{% url 'mortalityrecord-update' record.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <a href="{% url 'mortalityrecord-delete' record.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
                     <td colspan="6" class="text-center text-muted py-4">No mortality records found.</td>
+
                 </tr>
                 {% endfor %}
             </tbody>
