@@ -43,252 +43,229 @@
         <nav class="col-md-2 d-none d-md-block bg-light sidebar py-3 min-vh-100">
             <ul class="nav flex-column">
 
-                <!-- ================== ALL YOUR MENU ITEMS START HERE ================== -->
+                <!-- Dashboard -->
                 <li class="nav-item mb-1">
                     <a class="nav-link text-dark fw-bold" href="{% url 'dashboard' %}">
                         <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
                 </li>
 
-                <li class="nav-item mt-3 mb-1">
-                    <span class="text-muted small px-3">FARM SETUP</span>
-                </li>
+                <!-- FARM SETUP -->
                 <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'farmunit-list' %}">
-                        <i class="bi bi-building"></i> Farm Units
+                    <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                    data-bs-toggle="collapse" href="#farmSetup" role="button">
+                        <span><i class="bi bi-building"></i> Farm Setup</span>
+                        <i class="bi bi-chevron-down small"></i>
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'pen-list' %}">
-                        <i class="bi bi-grid"></i> Pens
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'flock-list' %}">
-                        <i class="bi bi-egg"></i> Flocks
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'feedtype-list' %}">
-                        <i class="bi bi-bag"></i> Feed Types
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'drugandsupplement-list' %}">
-                        <i class="bi bi-capsule-pill"></i> Drugs & Supplements
-                    </a>
-                </li>
-                {% if is_manager_or_above %}
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'worker-list' %}">
-                        <i class="bi bi-people"></i> Workers
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'supplier-list' %}">
-                        <i class="bi bi-truck"></i> Suppliers
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'flockplacement-list' %}">
-                        <i class="bi bi-box-arrow-in-down"></i> Flock Placements
-                    </a>
-                </li>
-                {% endif %}
-
-                <li class="nav-item mt-3 mb-1">
-                    <span class="text-muted small px-3">FEED</span>
-                </li>
-                {% if is_manager_or_above %}
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'feedprocurement-list' %}">
-                        <i class="bi bi-cart"></i> Procurement
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'feeddelivery-list' %}">
-                        <i class="bi bi-box-seam"></i> Deliveries
-                    </a>
-                </li>
-                {% endif %}
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'feedstock-list' %}">
-                        <i class="bi bi-archive"></i> Stock
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'feedissuance-list' %}">
-                        <i class="bi bi-arrow-right-square"></i> Issuance
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'penfeedingactivity-list' %}">
-                        <i class="bi bi-cup-straw"></i> Feeding
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'penfeedingsupervision-list' %}">
-                        <i class="bi bi-clipboard-check"></i> Feeding Supervision
-                    </a>
+                    <div class="collapse" id="farmSetup">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'farmunit-list' %}">Farm Units</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'pen-list' %}">Pens</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'flock-list' %}">Flocks</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'feedtype-list' %}">Feed Types</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'drugandsupplement-list' %}">Drugs & Supplements</a>
+                            </li>
+                            {% if is_manager_or_above %}
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'worker-list' %}">Workers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'supplier-list' %}">Suppliers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'flockplacement-list' %}">Flock Placements</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
                 </li>
 
-                <li class="nav-item mt-3 mb-1">
-                    <span class="text-muted small px-3">HEALTH</span>
-                </li>
+                <!-- FEED -->
                 <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'watertreatmentlog-list' %}">
-                        <i class="bi bi-droplet"></i> Water & Drugs
+                    <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                    data-bs-toggle="collapse" href="#feedSection" role="button">
+                        <span><i class="bi bi-bag"></i> Feed</span>
+                        <i class="bi bi-chevron-down small"></i>
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'mortalityrecord-list' %}">
-                        <i class="bi bi-heartbreak"></i> Mortality
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'mortalityalert-list' %}">
-                        <i class="bi bi-bell"></i> Mortality Alerts
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'drugstock-list' %}">
-                        <i class="bi bi-capsule"></i> Drug Stock
-                    </a>
-                </li>
-                {% if is_manager_or_above %}
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'drugpurchaseorder-list' %}">
-                        <i class="bi bi-capsule"></i> Drug Purchases
-                    </a>
-                </li>
-                {% endif %}
-
-                <li class="nav-item mt-3 mb-1">
-                    <span class="text-muted small px-3">PRODUCTION</span>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'eggcollection-list' %}">
-                        <i class="bi bi-egg-fill"></i> Egg Collection
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'egggrading-list' %}">
-                        <i class="bi bi-funnel"></i> Egg Grading
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'eggstorageconfirmation-list' %}">
-                        <i class="bi bi-box-seam"></i> Storage Confirmation
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'eggtransfer-list' %}">
-                        <i class="bi bi-arrow-up-right-square"></i> Egg Transfer
-                    </a>
+                    <div class="collapse" id="feedSection">
+                        <ul class="nav flex-column ms-3">
+                            {% if is_manager_or_above %}
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'feedprocurement-list' %}">Procurement</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'feeddelivery-list' %}">Deliveries</a>
+                            </li>
+                            {% endif %}
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'feedstock-list' %}">Stock</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'feedissuance-list' %}">Issuance</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'penfeedingactivity-list' %}">Feeding</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'penfeedingsupervision-list' %}">Supervision</a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
 
-                <li class="nav-item mt-3 mb-1">
-                    <span class="text-muted small px-3">OPERATIONS</span>
-                </li>
+                <!-- HEALTH -->
                 <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'cleaninglog-list' %}">
-                        <i class="bi bi-brush"></i> Cleaning
+                    <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                    data-bs-toggle="collapse" href="#healthSection" role="button">
+                        <span><i class="bi bi-heart-pulse"></i> Health</span>
+                        <i class="bi bi-chevron-down small"></i>
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'maintenancefault-list' %}">
-                        <i class="bi bi-tools"></i> Maintenance
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'maintenancerepair-list' %}">
-                        <i class="bi bi-wrench"></i> Repairs
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'maintenanceconfirmation-list' %}">
-                        <i class="bi bi-patch-check"></i> Repair Confirmations
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'manurelog-list' %}">
-                        <i class="bi bi-recycle"></i> Manure
-                    </a>
+                    <div class="collapse" id="healthSection">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'watertreatmentlog-list' %}">Water & Drugs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'mortalityrecord-list' %}">Mortality</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'drugstock-list' %}">Drug Stock</a>
+                            </li>
+                            {% if is_manager_or_above %}
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'drugpurchaseorder-list' %}">Drug Purchases</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
                 </li>
 
+                <!-- PRODUCTION -->
+                <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                    data-bs-toggle="collapse" href="#productionSection" role="button">
+                        <span><i class="bi bi-egg-fill"></i> Production</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse" id="productionSection">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'eggcollection-list' %}">Egg Collection</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'egggrading-list' %}">Egg Grading</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'eggstorageconfirmation-list' %}">Storage Confirmation</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'eggtransfer-list' %}">Egg Transfer</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <!-- OPERATIONS -->
+                <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                    data-bs-toggle="collapse" href="#operationsSection" role="button">
+                        <span><i class="bi bi-tools"></i> Operations</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse" id="operationsSection">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'cleaninglog-list' %}">Cleaning</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'maintenancefault-list' %}">Maintenance</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'maintenancerepair-list' %}">Repairs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'maintenanceconfirmation-list' %}">Confirmations</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'manurelog-list' %}">Manure</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <!-- REPORTS -->
                 {% if is_supervisor_or_above %}
-                <li class="nav-item mt-3 mb-1">
-                    <span class="text-muted small px-3">REPORTS</span>
-                </li>
                 <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'report-feed-stock' %}">
-                        <i class="bi bi-bar-chart"></i> Feed Stock
+                    <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                    data-bs-toggle="collapse" href="#reportsSection" role="button">
+                        <span><i class="bi bi-bar-chart"></i> Reports</span>
+                        <i class="bi bi-chevron-down small"></i>
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'report-egg-production' %}">
-                        <i class="bi bi-egg-fill"></i> Egg Production
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'report-mortality' %}">
-                        <i class="bi bi-heartbreak"></i> Mortality
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'report-maintenance' %}">
-                        <i class="bi bi-tools"></i> Maintenance
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'report-pending' %}">
-                        <i class="bi bi-hourglass"></i> Pending Confirmations
-                    </a>
-                </li>
-                <li class="nav-item mt-3 mb-1">
-                    <span class="text-muted small px-3">DASHBOARDS</span>
-                </li>
-
-                <li class="nav-item mt-3 mb-1">
-                    <span class="text-muted small px-3">SALES</span>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'customer-list' %}">
-                        <i class="bi bi-person-lines-fill"></i> Customers
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'shopsale-list' %}">
-                        <i class="bi bi-receipt"></i> Shop Sales
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'shopstock-list' %}">
-                        <i class="bi bi-boxes"></i> Shop Stock
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'shopproduct-list' %}">
-                        <i class="bi bi-tags"></i> Shop Products
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'shopoutflow-list' %}">
-                        <i class="bi bi-cash-stack"></i> Outflows
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'oldlayersale-list' %}">
-                        <i class="bi bi-egg"></i> Layer Sales
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'workersalary-list' %}">
-                        <i class="bi bi-wallet2"></i> Salaries
-                    </a>
+                    <div class="collapse" id="reportsSection">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'report-feed-stock' %}">Feed Stock</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'report-egg-production' %}">Egg Production</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'report-mortality' %}">Mortality</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'report-maintenance' %}">Maintenance</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'report-pending' %}">Pending</a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
                 {% endif %}
-                <!-- ================== ALL YOUR MENU ITEMS END HERE ================== -->
+
+                <!-- SALES -->
+                <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                    data-bs-toggle="collapse" href="#salesSection" role="button">
+                        <span><i class="bi bi-shop"></i> Sales</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="collapse" id="salesSection">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'customer-list' %}">Customers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'shopsale-list' %}">Shop Sales</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'shopstock-list' %}">Shop Stock</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'shopproduct-list' %}">Products</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'shopoutflow-list' %}">Outflows</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'oldlayersale-list' %}">Layer Sales</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'workersalary-list' %}">Salaries</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
             </ul>
         </nav>
 
@@ -301,254 +278,230 @@
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body p-0">
-                <ul class="nav flex-column py-3">
+                <ul class="nav flex-column">
 
-                    <!-- ================== COPY ALL MENU ITEMS BELOW THIS LINE ================== -->
-
+                    <!-- Dashboard -->
                     <li class="nav-item mb-1">
                         <a class="nav-link text-dark fw-bold" href="{% url 'dashboard' %}">
                             <i class="bi bi-speedometer2"></i> Dashboard
                         </a>
                     </li>
 
-                    <li class="nav-item mt-3 mb-1">
-                        <span class="text-muted small px-3">FARM SETUP</span>
-                    </li>
+                    <!-- FARM SETUP -->
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'farmunit-list' %}">
-                            <i class="bi bi-building"></i> Farm Units
+                        <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                        data-bs-toggle="collapse" href="#farmSetup" role="button">
+                            <span><i class="bi bi-building"></i> Farm Setup</span>
+                            <i class="bi bi-chevron-down small"></i>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'pen-list' %}">
-                            <i class="bi bi-grid"></i> Pens
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'flock-list' %}">
-                            <i class="bi bi-egg"></i> Flocks
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'feedtype-list' %}">
-                            <i class="bi bi-bag"></i> Feed Types
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'drugandsupplement-list' %}">
-                            <i class="bi bi-capsule-pill"></i> Drugs & Supplements
-                        </a>
+                        <div class="collapse" id="farmSetup">
+                            <ul class="nav flex-column ms-3">
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'farmunit-list' %}">Farm Units</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'pen-list' %}">Pens</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'flock-list' %}">Flocks</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'feedtype-list' %}">Feed Types</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'drugandsupplement-list' %}">Drugs & Supplements</a>
+                                </li>
+                                {% if is_manager_or_above %}
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'worker-list' %}">Workers</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'supplier-list' %}">Suppliers</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'flockplacement-list' %}">Flock Placements</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
                     </li>
 
-                    {% if is_manager_or_above %}
+                    <!-- FEED -->
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'worker-list' %}">
-                            <i class="bi bi-people"></i> Workers
+                        <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                        data-bs-toggle="collapse" href="#feedSection" role="button">
+                            <span><i class="bi bi-bag"></i> Feed</span>
+                            <i class="bi bi-chevron-down small"></i>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'supplier-list' %}">
-                            <i class="bi bi-truck"></i> Suppliers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'flockplacement-list' %}">
-                            <i class="bi bi-box-arrow-in-down"></i> Flock Placements
-                        </a>
-                    </li>
-                    {% endif %}
-
-                    <li class="nav-item mt-3 mb-1">
-                        <span class="text-muted small px-3">FEED</span>
-                    </li>
-                    {% if is_manager_or_above %}
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'feedprocurement-list' %}">
-                            <i class="bi bi-cart"></i> Procurement
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'feeddelivery-list' %}">
-                            <i class="bi bi-box-seam"></i> Deliveries
-                        </a>
-                    </li>
-                    {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'feedstock-list' %}">
-                            <i class="bi bi-archive"></i> Stock
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'feedissuance-list' %}">
-                            <i class="bi bi-arrow-right-square"></i> Issuance
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'penfeedingactivity-list' %}">
-                            <i class="bi bi-cup-straw"></i> Feeding
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'penfeedingsupervision-list' %}">
-                            <i class="bi bi-clipboard-check"></i> Feeding Supervision
-                        </a>
+                        <div class="collapse" id="feedSection">
+                            <ul class="nav flex-column ms-3">
+                                {% if is_manager_or_above %}
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'feedprocurement-list' %}">Procurement</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'feeddelivery-list' %}">Deliveries</a>
+                                </li>
+                                {% endif %}
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'feedstock-list' %}">Stock</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'feedissuance-list' %}">Issuance</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'penfeedingactivity-list' %}">Feeding</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'penfeedingsupervision-list' %}">Supervision</a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
 
-                    <li class="nav-item mt-3 mb-1">
-                        <span class="text-muted small px-3">HEALTH</span>
-                    </li>
+                    <!-- HEALTH -->
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'watertreatmentlog-list' %}">
-                            <i class="bi bi-droplet"></i> Water & Drugs
+                        <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                        data-bs-toggle="collapse" href="#healthSection" role="button">
+                            <span><i class="bi bi-heart-pulse"></i> Health</span>
+                            <i class="bi bi-chevron-down small"></i>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'mortalityrecord-list' %}">
-                            <i class="bi bi-heartbreak"></i> Mortality
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'mortalityalert-list' %}">
-                            <i class="bi bi-bell"></i> Mortality Alerts
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'drugstock-list' %}">
-                            <i class="bi bi-capsule"></i> Drug Stock
-                        </a>
-                    </li>
-                    {% if is_manager_or_above %}
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'drugpurchaseorder-list' %}">
-                            <i class="bi bi-capsule"></i> Drug Purchases
-                        </a>
-                    </li>
-                    {% endif %}
-
-                    <li class="nav-item mt-3 mb-1">
-                        <span class="text-muted small px-3">PRODUCTION</span>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'eggcollection-list' %}">
-                            <i class="bi bi-egg-fill"></i> Egg Collection
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'egggrading-list' %}">
-                            <i class="bi bi-funnel"></i> Egg Grading
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'eggstorageconfirmation-list' %}">
-                            <i class="bi bi-box-seam"></i> Storage Confirmation
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'eggtransfer-list' %}">
-                            <i class="bi bi-arrow-up-right-square"></i> Egg Transfer
-                        </a>
+                        <div class="collapse" id="healthSection">
+                            <ul class="nav flex-column ms-3">
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'watertreatmentlog-list' %}">Water & Drugs</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'mortalityrecord-list' %}">Mortality</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'drugstock-list' %}">Drug Stock</a>
+                                </li>
+                                {% if is_manager_or_above %}
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'drugpurchaseorder-list' %}">Drug Purchases</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
                     </li>
 
-                    <li class="nav-item mt-3 mb-1">
-                        <span class="text-muted small px-3">OPERATIONS</span>
-                    </li>
+                    <!-- PRODUCTION -->
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'cleaninglog-list' %}">
-                            <i class="bi bi-brush"></i> Cleaning
+                        <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                        data-bs-toggle="collapse" href="#productionSection" role="button">
+                            <span><i class="bi bi-egg-fill"></i> Production</span>
+                            <i class="bi bi-chevron-down small"></i>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'maintenancefault-list' %}">
-                            <i class="bi bi-tools"></i> Maintenance
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'maintenancerepair-list' %}">
-                            <i class="bi bi-wrench"></i> Repairs
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'maintenanceconfirmation-list' %}">
-                            <i class="bi bi-patch-check"></i> Repair Confirmations
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'manurelog-list' %}">
-                            <i class="bi bi-recycle"></i> Manure
-                        </a>
+                        <div class="collapse" id="productionSection">
+                            <ul class="nav flex-column ms-3">
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'eggcollection-list' %}">Egg Collection</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'egggrading-list' %}">Egg Grading</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'eggstorageconfirmation-list' %}">Storage Confirmation</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'eggtransfer-list' %}">Egg Transfer</a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
 
+                    <!-- OPERATIONS -->
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                        data-bs-toggle="collapse" href="#operationsSection" role="button">
+                            <span><i class="bi bi-tools"></i> Operations</span>
+                            <i class="bi bi-chevron-down small"></i>
+                        </a>
+                        <div class="collapse" id="operationsSection">
+                            <ul class="nav flex-column ms-3">
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'cleaninglog-list' %}">Cleaning</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'maintenancefault-list' %}">Maintenance</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'maintenancerepair-list' %}">Repairs</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'maintenanceconfirmation-list' %}">Confirmations</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'manurelog-list' %}">Manure</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <!-- REPORTS -->
                     {% if is_supervisor_or_above %}
-                    <li class="nav-item mt-3 mb-1">
-                        <span class="text-muted small px-3">REPORTS</span>
-                    </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'report-feed-stock' %}">
-                            <i class="bi bi-bar-chart"></i> Feed Stock
+                        <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                        data-bs-toggle="collapse" href="#reportsSection" role="button">
+                            <span><i class="bi bi-bar-chart"></i> Reports</span>
+                            <i class="bi bi-chevron-down small"></i>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'report-egg-production' %}">
-                            <i class="bi bi-egg-fill"></i> Egg Production
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'report-mortality' %}">
-                            <i class="bi bi-heartbreak"></i> Mortality
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'report-maintenance' %}">
-                            <i class="bi bi-tools"></i> Maintenance
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'report-pending' %}">
-                            <i class="bi bi-hourglass"></i> Pending Confirmations
-                        </a>
-                    </li>
-
-                    <li class="nav-item mt-3 mb-1">
-                        <span class="text-muted small px-3">SALES</span>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'customer-list' %}">
-                            <i class="bi bi-person-lines-fill"></i> Customers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'shopsale-list' %}">
-                            <i class="bi bi-receipt"></i> Shop Sales
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'shopstock-list' %}">
-                            <i class="bi bi-boxes"></i> Shop Stock
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'shopproduct-list' %}">
-                            <i class="bi bi-tags"></i> Shop Products
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'shopoutflow-list' %}">
-                            <i class="bi bi-cash-stack"></i> Outflows
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'oldlayersale-list' %}">
-                            <i class="bi bi-egg"></i> Layer Sales
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'workersalary-list' %}">
-                            <i class="bi bi-wallet2"></i> Salaries
-                        </a>
+                        <div class="collapse" id="reportsSection">
+                            <ul class="nav flex-column ms-3">
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'report-feed-stock' %}">Feed Stock</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'report-egg-production' %}">Egg Production</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'report-mortality' %}">Mortality</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'report-maintenance' %}">Maintenance</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'report-pending' %}">Pending</a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
                     {% endif %}
 
-                    <!-- ================== END OF MENU ITEMS ================== -->
+                    <!-- SALES -->
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-semibold d-flex justify-content-between"
+                        data-bs-toggle="collapse" href="#salesSection" role="button">
+                            <span><i class="bi bi-shop"></i> Sales</span>
+                            <i class="bi bi-chevron-down small"></i>
+                        </a>
+                        <div class="collapse" id="salesSection">
+                            <ul class="nav flex-column ms-3">
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'customer-list' %}">Customers</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'shopsale-list' %}">Shop Sales</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'shopstock-list' %}">Shop Stock</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'shopproduct-list' %}">Products</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'shopoutflow-list' %}">Outflows</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'oldlayersale-list' %}">Layer Sales</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="{% url 'workersalary-list' %}">Salaries</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
                 </ul>
             </div>
