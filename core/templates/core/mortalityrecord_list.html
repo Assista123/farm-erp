@@ -10,48 +10,67 @@
     </a>
 </div>
 
+<!-- Alert summary cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3 {% if alerts_today > 0 %}border-danger{% endif %}">
+            <div class="fs-2 fw-bold {% if alerts_today > 0 %}text-danger{% else %}text-success{% endif %}">
+                {{ alerts_today }}
+            </div>
+            <div class="text-muted small">High Mortality Alerts Today</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3 {% if alerts_three_days > 0 %}border-warning{% endif %}">
+            <div class="fs-2 fw-bold {% if alerts_three_days > 0 %}text-warning{% else %}text-success{% endif %}">
+                {{ alerts_three_days }}
+            </div>
+            <div class="text-muted small">High Mortality Last 3 Days</div>
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Pen</th>
-                    <th>Total Count</th>
-                    <th>Alert</th>
-                    <th>Discovered By</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for record in mortality_records %}
-                <tr>
-                    <td>{{ record.date_found }}</td>
-                    <td>{{ record.pen.name }}</td>
-                    <td>{{ record.total_count }}</td>
-                    <td>
-                        {% if record.is_high_mortality %}
-                            <span class="badge bg-danger">High Mortality</span>
-                        {% else %}
-                            <span class="badge bg-success">Normal</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ record.discovered_by.full_name }}</td>
-                    <td>
-                        <a href="{% url 'mortalityrecord-detail' record.pk %}" class="btn btn-sm btn-outline-success">View</a>
-                        <a href="{% url 'mortalityrecord-update' record.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
-                        <a href="{% url 'mortalityrecord-delete' record.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center text-muted py-4">No mortality records found.</td>
-
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Pen</th>
+                        <th>Total Count</th>
+                        <th>Alert</th>
+                        <th>Discovered By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in mortality_records %}
+                    <tr {% if record.is_high_mortality %}class="table-danger"{% endif %}>
+                        <td>{{ record.date_found }}</td>
+                        <td>{{ record.pen.name }}</td>
+                        <td>{{ record.total_count }}</td>
+                        <td>
+                            {% if record.is_high_mortality %}
+                                <span class="badge bg-danger">High Mortality</span>
+                            {% else %}
+                                <span class="badge bg-success">Normal</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ record.discovered_by.full_name }}</td>
+                        <td>
+                            <a href="{% url 'mortalityrecord-detail' record.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                            <a href="{% url 'mortalityrecord-update' record.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <a href="{% url 'mortalityrecord-delete' record.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No mortality records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

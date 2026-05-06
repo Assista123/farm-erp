@@ -847,11 +847,30 @@ class WaterTreatmentLogCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class MortalityRecordListView(LoginRequiredMixin, ListView):
-    model = MortalityRecord
-    template_name = 'core/mortalityrecord_list.html'
-    context_object_name = 'mortality_records'
-    ordering = ['-date_found']
+@login_required
+def mortalityrecord_list(request):
+    from datetime import timedelta
+    today = date.today()
+    three_days_ago = today - timedelta(days=3)
+
+    mortality_records = MortalityRecord.objects.all().order_by('-date_found')
+    alerts_today = MortalityRecord.objects.filter(
+        is_high_mortality=True,
+        date_found=today
+    ).count()
+    alerts_three_days = MortalityRecord.objects.filter(
+        is_high_mortality=True,
+        date_found__gte=three_days_ago
+    ).count()
+
+    context = {
+        'mortality_records': mortality_records,
+        'alerts_today': alerts_today,
+        'alerts_three_days': alerts_three_days,
+        'today': today,
+    }
+    context.update(get_user_context(request.user))
+    return render(request, 'core/mortalityrecord_list.html', context)
 
 
 class MortalityRecordDetailView(LoginRequiredMixin, DetailView):

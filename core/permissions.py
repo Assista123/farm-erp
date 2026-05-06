@@ -51,6 +51,7 @@ def get_user_context(user):
     """Returns context variables about the current user's role
     for use in templates."""
     role = get_worker_role(user)
+    
     return {
         'user_role': role,
         'is_pen_worker': role == 'pen_worker',
@@ -60,6 +61,8 @@ def get_user_context(user):
         'is_manager_or_above': role in ['manager', 'director'],
         'is_supervisor_or_above': role in ['supervisor', 'store_keeper',
                                            'manager', 'director'],
+        'can_see_farm': can_see_farm(user),
+        'can_see_shop': can_see_shop(user),
     }
 
 def is_supervisor(user):
@@ -101,3 +104,12 @@ def get_user_context(user):
         'is_supervisor_or_above': role in ['supervisor', 'store_keeper', 'manager',
                                             'general_manager', 'director'],
     }
+
+def can_see_farm(user):
+    role = get_worker_role(user)
+    return role in ['pen_worker', 'supervisor', 'store_keeper', 'manager'
+                    'general_manager', 'accountant', 'director']
+                
+def can_see_shop(user):
+    role = get_worker_role(user)
+    return role in ['salesperson','general_manager', 'accountant', 'director']

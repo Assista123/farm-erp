@@ -77,7 +77,7 @@ urlpatterns = [
     path('water-treatments/add/', views.WaterTreatmentLogCreateView.as_view(), name='watertreatmentlog-create'),
     path('water-treatments/<int:pk>/', views.WaterTreatmentLogDetailView.as_view(), name='watertreatmentlog-detail'),
 
-    path('mortality/', views.MortalityRecordListView.as_view(), name='mortalityrecord-list'),
+    path('mortality/', views.mortalityrecord_list, name='mortalityrecord-list'),
     path('mortality/add/', views.mortalityrecord_create, name='mortalityrecord-create'),
     path('mortality/alerts/', views.MortalityAlertListView.as_view(), name='mortalityalert-list'),
     path('mortality/alerts/add/', views.MortalityAlertCreateView.as_view(), name='mortalityalert-create'),
