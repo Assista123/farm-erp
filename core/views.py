@@ -113,7 +113,7 @@ def dashboard(request):
     monthly_profit = monthly_sales - monthly_outflow
 
     outstanding_deliveries = ShopSale.objects.filter(
-        delivered=False).count()
+         delivery_status__in=['pending', 'partial']).count()
     customers_today = todays_sales.values('customer').distinct().count()
     low_stock = ShopStock.objects.filter(
         current_quantity__lte=F('reorder_threshold')
@@ -151,7 +151,27 @@ def dashboard(request):
     context.update(get_user_context(request.user))
     return render(request, 'core/dashboard.html', context)
 
-
+@login_required
+def shopstock_movement_create(request):
+    from .forms import ShopStockMovementForm
+    if request.method == 'POST':
+        form = ShopStockMovementForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('shopstock-list')
+        else:
+            return render(request, 'core/form.html', {
+                'form': form,
+                'title': 'Record Stock Movement',
+                'cancel_url': reverse_lazy('shopstock-list')
+            })
+    else:
+        form = ShopStockMovementForm()
+    return render(request, 'core/form.html', {
+        'form': form,
+        'title': 'Record Stock Movement',
+        'cancel_url': reverse_lazy('shopstock-list')
+    })
 
 # ══════════════════════════════════════════════════════════════════
 # REPORTS
@@ -1614,7 +1634,8 @@ class ShopSaleCreateView(LoginRequiredMixin, CreateView):
     template_name = 'core/form.html'
     fields = ['customer', 'customer_name_walkin', 'sale_date', 'product',
               'quantity', 'price_per_unit', 'payment_method',
-              'payment_reference', 'delivered', 'delivery_date',
+              'payment_reference', 'delivery_status', 'quantity_delivered',
+              'delivery_date',
               'recorded_by', 'notes']
     success_url = reverse_lazy('shopsale-list')
 

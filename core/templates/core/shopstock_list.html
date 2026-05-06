@@ -3,7 +3,12 @@
 {% block title %}Shop Stock — Farm ERP{% endblock %}
 
 {% block content %}
-<h4 class="mb-4">Shop Stock</h4>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Shop Stock</h4>
+    <a href="{% url 'shopstockmovement-create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Record Stock Movement
+    </a>
+</div>
 
 <div class="card">
     <div class="card-body p-0">

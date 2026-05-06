@@ -306,8 +306,8 @@ class ShopStockMovementAdmin(admin.ModelAdmin):
 @admin.register(ShopSale)
 class ShopSaleAdmin(admin.ModelAdmin):
     list_display = ['sale_date', 'customer', 'product', 'quantity',
-                    'total_amount', 'payment_method', 'delivered']
-    list_filter = ['sale_date', 'payment_method', 'delivered']
+                    'total_amount', 'payment_method', 'delivery_status']
+    list_filter = ['sale_date', 'payment_method', 'delivery_status']
     readonly_fields = ['total_amount', 'pricing_type']
 
 

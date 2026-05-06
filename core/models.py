@@ -33,7 +33,10 @@ class Worker(models.Model):
     ('supervisor', 'Supervisor'),
     ('store_keeper', 'Store Keeper'),
     ('manager', 'Farm Mamager'),
-    ('director','Director'),
+    ('general_manager', 'General Manager'),
+    ('salesperson','Salesperson'),
+    ('accountant', 'Accountant'),
+    ('director', 'Director'),
     ]
 
     user = models.OneToOneField(
@@ -1543,7 +1546,13 @@ class ShopSale(models.Model):
         ('pos', 'POS'),
     ]
 
-    PRICING_TYPE_CHOICES = [
+    DELIVERY_STATUS_CHOICES = [
+    ('pending', 'Pending'),
+    ('partial', 'Partial'),
+    ('complete', 'Complete'),
+    ]
+
+    PRICING_TYPE_CHOICES = [    
         ('wholesale', 'Wholesale'),
         ('retail', 'Retail'),
     ]
@@ -1586,9 +1595,16 @@ class ShopSale(models.Model):
         blank=True,
         help_text="Transfer reference or POS receipt number"
     )
-    delivered = models.BooleanField(
-        default=False,
-        help_text="Has the product been delivered to the customer"
+    delivery_status = models.CharField(
+        max_length=10,
+        choices=DELIVERY_STATUS_CHOICES,
+        default='pending',
+    )
+    quantity_delivered = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text='How much has been delivered so far',
     )
     delivery_date = models.DateField(null=True, blank=True)
     recorded_by = models.ForeignKey(

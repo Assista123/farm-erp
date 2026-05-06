@@ -61,3 +61,43 @@ def get_user_context(user):
         'is_supervisor_or_above': role in ['supervisor', 'store_keeper',
                                            'manager', 'director'],
     }
+
+def is_supervisor(user):
+    return get_worker_role(user) in ['supervisor', 'store_keeper']
+
+
+def is_manager(user):
+    return get_worker_role(user) in ['manager', 'general_manager']
+
+
+def is_manager_or_above(user):
+    return get_worker_role(user) in ['manager', 'general_manager', 'director']
+
+
+def is_supervisor_or_above(user):
+    return get_worker_role(user) in ['supervisor', 'store_keeper', 'manager',
+                                      'general_manager', 'director']
+
+
+def is_salesperson(user):
+    return get_worker_role(user) == 'salesperson'
+
+
+def is_accountant(user):
+    return get_worker_role(user) == 'accountant'
+
+
+def get_user_context(user):
+    role = get_worker_role(user)
+    return {
+        'user_role': role,
+        'is_pen_worker': role == 'pen_worker',
+        'is_supervisor': role in ['supervisor', 'store_keeper'],
+        'is_manager': role in ['manager', 'general_manager'],
+        'is_director': role == 'director',
+        'is_salesperson': role == 'salesperson',
+        'is_accountant': role == 'accountant',
+        'is_manager_or_above': role in ['manager', 'general_manager', 'director'],
+        'is_supervisor_or_above': role in ['supervisor', 'store_keeper', 'manager',
+                                            'general_manager', 'director'],
+    }

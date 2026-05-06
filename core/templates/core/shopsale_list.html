@@ -35,11 +35,13 @@
                         <td>{{ sale.quantity }} {{ sale.product.unit }}</td>
                         <td>₦{{ sale.total_amount }}</td>
                         <td>{{ sale.get_payment_method_display }}</td>
-                        <td>
-                            {% if sale.delivered %}
-                                <span class="badge bg-success">Yes</span>
+                       <td>
+                            {% if sale.delivery_status == 'complete' %}
+                                <span class="badge bg-success">Complete</span>
+                            {% elif sale.delivery_status == 'partial' %}
+                                <span class="badge bg-warning text-dark">Partial</span>
                             {% else %}
-                                <span class="badge bg-warning text-dark">Pending</span>
+                                <span class="badge bg-danger">Pending</span>
                             {% endif %}
                         </td>
                         <td>

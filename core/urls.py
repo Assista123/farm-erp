@@ -145,6 +145,7 @@ urlpatterns = [
     path('customers/<int:pk>/edit/', views.CustomerUpdateView.as_view(), name='customer-update'),
 
     # Shop Products
+    path('shop/stock/movement/add/', views.shopstock_movement_create, name='shopstockmovement-create'),
     path('shop/products/', views.ShopProductListView.as_view(), name='shopproduct-list'),
     path('shop/products/add/', views.ShopProductCreateView.as_view(), name='shopproduct-create'),
     path('shop/products/<int:pk>/edit/', views.ShopProductUpdateView.as_view(), name='shopproduct-update'),

@@ -7,6 +7,7 @@ from .models import (
     PenFeedingActivity, PenFeedingActivityItem,
     DrugPurchaseOrder, DrugPurchaseItem,
     MortalityRecord, MortalityRecordItem,
+    ShopStockMovement,
 )
 
 
@@ -151,3 +152,10 @@ MortalityRecordItemFormSet = inlineformset_factory(
     validate_min=False,
     min_num=0
 )
+
+
+class ShopStockMovementForm(forms.ModelForm):
+    class Meta:
+        model = ShopStockMovement
+        fields = ['shop_stock', 'movement_type', 'movement_reason',
+                  'quantity', 'recorded_by', 'notes']

@@ -69,7 +69,7 @@
 
     <div class="receipt-footer">
         <div class="small">Thank you for your business</div>
-        <div class="small">Delivery: {{ sale.delivered|yesno:"Completed,Pending" }}</div>
+        <div class="small">Delivery: {{ sale.get_delivery_status_display }}</div>
     </div>
 </div>
 
