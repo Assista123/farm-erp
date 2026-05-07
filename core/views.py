@@ -31,7 +31,7 @@ from .models import (
     CleaningLog, MaintenanceFault, ManureLog,
     MaintenanceRepair, MaintenanceConfirmation,
     Customer, ShopProduct, ShopStock, ShopStockMovement,
-    ShopSale, ShopOutflow, OldLayerSale, WorkerSalary,
+    ShopSale, ShopDelivery, ShopOutflow, OldLayerSale, WorkerSalary,
 )
 
 
@@ -1650,6 +1650,26 @@ def shop_sale_receipt(request, pk):
     }
     return render(request, 'core/shopsale_receipt.html', context)
 
+class ShopDeliveryCreateView(LoginRequiredMixin, CreateView):
+    model = ShopDelivery
+    template_name = 'core/form.html'
+    fields = ['sale', 'delivery_date', 'quantity_delivered', 'delivered_by', 'notes']
+    success_url = reverse_lazy('shopsale-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Delivery'
+        context['cancel_url'] = reverse_lazy('shopsale-list')
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        sale_pk = self.request.GET.get('sale')
+        if sale_pk:
+            initial['sale'] = sale_pk
+        return initial
+
+
 class ShopSaleCreateView(LoginRequiredMixin, CreateView):
     model = ShopSale
     template_name = 'core/form.html'
@@ -1665,6 +1685,26 @@ class ShopSaleCreateView(LoginRequiredMixin, CreateView):
         context['title'] = 'Record Sale'
         context['cancel_url'] = reverse_lazy('shopsale-list')
         return context
+
+class ShopDeliveryCreateView(LoginRequiredMixin, CreateView):
+    model = ShopDelivery
+    template_name = 'core/form.html'
+    fields = ['sale', 'delivery_date', 'quantity_delivered', 'delivered_by', 'notes']
+    success_url = reverse_lazy('shopsale-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Record Delivery'
+        context['cancel_url'] = reverse_lazy('shopsale-list')
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        sale_pk = self.request.GET.get('sale')
+        if sale_pk:
+            initial['sale'] = sale_pk
+        return initial
+
 
 
 # ══════════════════════════════════════════════════════════════════

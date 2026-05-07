@@ -159,6 +159,7 @@ urlpatterns = [
     path('shop/sales/add/', views.ShopSaleCreateView.as_view(), name='shopsale-create'),
     path('shop/sales/<int:pk>/', views.ShopSaleDetailView.as_view(), name='shopsale-detail'),
     path('shop/sales/<int:pk>/receipt/', views.shop_sale_receipt, name='shopsale-receipt'),
+    path('shop/deliveries/add/', views.ShopDeliveryCreateView.as_view(), name='shopdelivery-create'),
 
     # Shop Outflow
     path('shop/outflows/', views.ShopOutflowListView.as_view(), name='shopoutflow-list'),

@@ -18,7 +18,7 @@ from .models import (
     CleaningLog, ManureLog,
     MaintenanceFault, MaintenanceRepair, MaintenanceConfirmation,
      Customer, ShopProduct, ShopStock, ShopStockMovement,
-    ShopSale, ShopOutflow, OldLayerSale, WorkerSalary,
+    ShopSale, ShopDelivery, ShopOutflow, OldLayerSale, WorkerSalary,
 )
 
 
@@ -331,3 +331,7 @@ class WorkerSalaryAdmin(admin.ModelAdmin):
                     'net_salary', 'payment_date']
     list_filter = ['month', 'year']
     readonly_fields = ['net_salary']
+
+@admin.register(ShopDelivery)
+class ShopDeliveryAdmin(admin.ModelAdmin):
+    list_display = ['sale', 'delivery_date', 'quantity_delivered', 'delivered_by']

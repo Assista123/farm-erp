@@ -19,6 +19,7 @@ from .models import (
     ShopStockMovement,
     ShopStock,
     ShopSale,
+    ShopDelivery,
     OldLayerSale,
     WorkerSalary,
 )
@@ -217,3 +218,26 @@ def compute_net_salary(sender, instance, **kwargs):
     """Auto-compute net_salary on WorkerSalary."""
     net = instance.basic_salary + instance.allowances - instance.deductions
     WorkerSalary.objects.filter(pk=instance.pk).update(net_salary=net)
+
+
+# ── SHOP DELIVERY ─────────────────────────────────────────────────
+
+@receiver(post_save, sender=ShopDelivery)
+def update_sale_delivery_status(sender, instance, **kwargs):
+    """Update ShopSale delivery_status and quantity_delivered when a delivery is recorded."""
+    from django.db.models import Sum
+    sale = instance.sale
+    total_delivered = sale.deliveries.aggregate(
+        Sum('quantity_delivered'))['quantity_delivered__sum'] or 0
+
+    if total_delivered == 0:
+        status = 'pending'
+    elif total_delivered >= sale.quantity:
+        status = 'complete'
+    else:
+        status = 'partial'
+
+    ShopSale.objects.filter(pk=sale.pk).update(
+        quantity_delivered=total_delivered,
+        delivery_status=status
+    )

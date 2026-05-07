@@ -1596,7 +1596,7 @@ class ShopSale(models.Model):
         help_text="Transfer reference or POS receipt number"
     )
     delivery_status = models.CharField(
-        max_length=10,
+        max_length=20,
         choices=DELIVERY_STATUS_CHOICES,
         default='pending',
     )
@@ -1604,7 +1604,7 @@ class ShopSale(models.Model):
         max_digits=10,
         decimal_places=2,
         default=0,
-        help_text='How much has been delivered so far',
+        help_text='Auto computed from delivery records',
     )
     delivery_date = models.DateField(null=True, blank=True)
     recorded_by = models.ForeignKey(
@@ -1619,6 +1619,24 @@ class ShopSale(models.Model):
         customer = self.customer.name if self.customer else self.customer_name_walkin or "Walk-in"
         return f"{customer} — {self.product.name} — {self.sale_date}"
 
+class ShopDelivery(models.Model):
+    sale = models.ForeignKey(
+        ShopSale,
+        on_delete=models.CASCADE,
+        related_name='deliveries'
+    )
+    delivery_date = models.DateField()
+    quantity_delivered = models.DecimalField(max_digits=10, decimal_places=2)
+    delivered_by = models.ForeignKey(
+        Worker,
+        on_delete=models.PROTECT,
+        related_name='shop_deliveries'
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def str(self):
+        return f"Delivery {self.quantity_delivered} for Sale #{self.sale.pk} on {self.delivery_date}"
 
 class ShopOutflow(models.Model):
     OUTFLOW_TYPE_CHOICES = [
