@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from datetime import date
 from django.db.models import Sum, Count, F
-from .permissions import role_required, get_user_context
+from .permissions import role_required, get_user_context, get_worker_role
 from django.utils.decorators import method_decorator
 
 
@@ -45,7 +45,9 @@ def dashboard(request):
     today = date.today()
     week_start = today - timedelta(days=7)
     month_start = today.replace(day=1)
-    view = request.GET.get('view', 'farm')
+    role = get_worker_role(request.user)
+    default_view = 'shop' if role in ['salesperson', 'accountant'] else 'farm'
+    view = request.GET.get('view', default_view)
 
     # ── FARM DATA ────────────────────────────────────────────────
     total_birds = Flock.objects.filter(

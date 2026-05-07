@@ -14,12 +14,16 @@
         {% endif %}
     </h4>
     <div class="btn-group">
+        {% if not is_salesperson %}
         <a href="?view=farm" class="btn {% if view != 'shop' %}btn-success{% else %}btn-outline-success{% endif %}">
             <i class="bi bi-tree"></i> Farm
         </a>
+        {% endif %}
+        {% if is_sales_or_above %}
         <a href="?view=shop" class="btn {% if view == 'shop' %}btn-success{% else %}btn-outline-success{% endif %}">
             <i class="bi bi-shop"></i> Shop
         </a>
+        {% endif %}
     </div>
 </div>
 
