@@ -192,14 +192,40 @@ def update_shop_stock_balance(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=ShopSale)
 def compute_shop_sale_totals(sender, instance, created, **kwargs):
-    """Auto-compute total_amount and pricing_type on ShopSale."""
     if created:
-        total = instance.quantity * instance.price_per_unit
         pricing_type = 'wholesale' if instance.quantity >= instance.product.wholesale_threshold else 'retail'
+        price_per_unit = instance.product.wholesale_price if pricing_type == 'wholesale' else instance.product.retail_price
+        total = instance.quantity * price_per_unit
+
+        # Determine initial delivery status
+        if instance.quantity_delivered_at_sale >= instance.quantity:
+            delivery_status = 'complete'
+            quantity_delivered = instance.quantity
+        elif instance.quantity_delivered_at_sale > 0:
+            delivery_status = 'partial'
+            quantity_delivered = instance.quantity_delivered_at_sale
+        else:
+            delivery_status = 'pending'
+            quantity_delivered = 0
+
         ShopSale.objects.filter(pk=instance.pk).update(
             total_amount=total,
-            pricing_type=pricing_type
+            pricing_type=pricing_type,
+            price_per_unit=price_per_unit,
+            delivery_status=delivery_status,
+            quantity_delivered=quantity_delivered
         )
+
+        # Only create delivery record for partial delivery
+        if instance.quantity_delivered_at_sale > 0 and instance.quantity_delivered_at_sale < instance.quantity:
+            from .models import ShopDelivery
+            ShopDelivery.objects.create(
+                sale=instance,
+                delivery_date=instance.sale_date,
+                quantity_delivered=instance.quantity_delivered_at_sale,
+                delivered_by=instance.recorded_by,
+                notes='Initial delivery at point of sale'
+            )
 
 
 # ── OLD LAYER SALE ───────────────────────────────────────────────

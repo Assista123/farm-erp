@@ -1449,8 +1449,22 @@ class ShopProduct(models.Model):
         ('other', 'Other'),
     ]
 
+    EGG_GRADE_CHOICES = [
+    ('jumbo', 'Jumbo'),
+    ('normal', 'Normal'),
+    ('new_drop', 'New Drop'),
+    ('cracked', 'Cracked'),
+    ('not_applicable', 'Not Applicable'),
+    ]
+
     name = models.CharField(max_length=200)
     product_type = models.CharField(max_length=20, choices=PRODUCT_TYPE_CHOICES)
+    
+    egg_grade = models.CharField(
+    max_length=20,
+    choices=EGG_GRADE_CHOICES,
+    default='not_applicable'
+    )
     unit = models.CharField(
         max_length=50,
         help_text="e.g. crate, bag, bottle, sachet"
@@ -1577,12 +1591,19 @@ class ShopSale(models.Model):
         related_name='sales'
     )
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity_delivered_at_sale = models.DecimalField(
+    max_digits=10,
+    decimal_places=2,
+    default=0,
+    help_text="How much was taken at point of sale"
+    )
     pricing_type = models.CharField(
         max_length=20,
         choices=PRICING_TYPE_CHOICES,
         editable=False
     )
-    price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
+    price_per_unit = models.DecimalField(max_digits=10, decimal_places=2,
+    editable=False, default=0)
     total_amount = models.DecimalField(
         max_digits=12,
         decimal_places=2,

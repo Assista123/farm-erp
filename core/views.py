@@ -1585,7 +1585,7 @@ class ShopProductListView(LoginRequiredMixin, ListView):
 class ShopProductCreateView(LoginRequiredMixin, CreateView):
     model = ShopProduct
     template_name = 'core/form.html'
-    fields = ['name', 'product_type', 'unit', 'wholesale_price',
+    fields = ['name', 'product_type', 'egg_grade', 'unit', 'wholesale_price',
               'retail_price', 'wholesale_threshold', 'notes']
     success_url = reverse_lazy('shopproduct-list')
 
@@ -1599,7 +1599,7 @@ class ShopProductCreateView(LoginRequiredMixin, CreateView):
 class ShopProductUpdateView(LoginRequiredMixin, UpdateView):
     model = ShopProduct
     template_name = 'core/form.html'
-    fields = ['name', 'product_type', 'unit', 'wholesale_price',
+    fields = ['name', 'product_type', 'egg_grade', 'unit', 'wholesale_price',
               'retail_price', 'wholesale_threshold', 'is_active', 'notes']
     success_url = reverse_lazy('shopproduct-list')
 
