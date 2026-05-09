@@ -7,7 +7,7 @@ from .models import (
     PenFeedingActivity, PenFeedingActivityItem,
     DrugPurchaseOrder, DrugPurchaseItem,
     MortalityRecord, MortalityRecordItem,
-    ShopStockMovement,
+    ShopStockMovement, ShopSale, ShopSaleItem,
 )
 
 
@@ -53,7 +53,7 @@ FeedDeliveryItemFormSet = inlineformset_factory(
     FeedDeliveryItem,
     fields=['feed_type', 'quantity_received', 'quantity_rejected', 'rejection_reason'],
     extra=2,
-    can_delete=True,
+    can_delete=False,
     min_num=0,
     validate_min=False
 )
@@ -159,3 +159,36 @@ class ShopStockMovementForm(forms.ModelForm):
         model = ShopStockMovement
         fields = ['shop_stock', 'movement_type', 'movement_reason',
                   'quantity', 'recorded_by', 'notes']
+
+class ShopSaleForm(forms.ModelForm):
+    class Meta:
+        model = ShopSale
+        fields = ['customer', 'customer_name_walkin', 'sale_date',
+                  'payment_method', 'payment_reference', 'recorded_by', 'notes']
+        widgets = {
+            'sale_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+
+
+class ShopSaleItemForm(forms.ModelForm):
+    class Meta:
+        model = ShopSaleItem
+        fields = ['product', 'quantity', 'quantity_delivered_at_sale']
+
+    def has_changed(self):
+        # Treat a row as empty if nothing was touched
+        return any(
+            self.data.get(self.add_prefix(f))
+            for f in self.fields
+        )
+ShopSaleItemFormSet = inlineformset_factory(
+    ShopSale,
+    ShopSaleItem,
+    fields=['product', 'quantity', 'quantity_delivered_at_sale'],#
+    form=ShopSaleItemForm,
+    extra=1,
+    can_delete=True,
+    min_num=1,
+    validate_min=True
+)

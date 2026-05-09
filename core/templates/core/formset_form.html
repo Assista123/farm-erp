@@ -19,65 +19,113 @@
 
                     <hr class="my-4">
 
-                    <!-- Inline formset -->
                     <h6 class="text-success mb-3">Items</h6>
                     {{ formset.management_form }}
 
+                    <!-- Container for visible rows -->
                     <div id="formset-container">
                         {% for item_form in formset %}
+                            <div class="formset-row border rounded p-3 mb-2 bg-light">
+                                <div class="row g-2">
+                                    {% for field in item_form.visible_fields %}
+                                    {% if field.name != 'DELETE' %}
+                                    <div class="col-12 col-sm-6 col-md-3 mb-2">
+                                        <label class="form-label small">{{ field.label }}</label>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="text-danger small">{{ field.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% for hidden in item_form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Hidden template for new rows -->
+                    <div id="empty-form" style="display: none;">
+                        <div class="formset-row border rounded p-3 mb-2 bg-light">
                             <div class="row g-2">
-                                {% for field in item_form.visible_fields %}
+                                {% for field in formset.empty_form.visible_fields %}
+                                {% if field.name != 'DELETE' %}
                                 <div class="col-12 col-sm-6 col-md-3 mb-2">
                                     <label class="form-label small">{{ field.label }}</label>
                                     {{ field }}
-                                    {% if field.errors %}
-                                        <div class="text-danger small">{{ field.errors }}</div>
-                                    {% endif %}
                                 </div>
+                                {% endif %}
                                 {% endfor %}
-                                {% for hidden in item_form.hidden_fields %}
+                                {% for hidden in formset.empty_form.hidden_fields %}
                                     {{ hidden }}
                                 {% endfor %}
                             </div>
-                            {% if formset.can_delete and item_form.instance.pk %}
-                            <div class="text-end">
-                                <label class="text-danger small">
-                                    {{ item_form.DELETE }} Remove this item
-                                </label>
-                            </div>
-                            {% endif %}
                         </div>
-                        {% endfor %}
                     </div>
 
-                    {% if form.errors %}
-                    <div class="alert alert-danger mt-3">
-                        <strong>Please fix the following errors:</strong>
-                        {{ form.errors }}
-                    </div>
-                    {% endif %}
-
-                    {% if formset.errors %}
-                    <div class="alert alert-danger mt-3">
-                        <strong>Item errors:</strong>
-                        {% for error in formset.errors %}
-                            {% if error %}{{ error }}{% endif %}
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-check-circle"></i> Save
+                    <!-- Buttons -->
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Sale
                         </button>
-                        <a href="{{ cancel_url }}" class="btn btn-outline-secondary">
+                        
+                        <button type="button" class="btn btn-outline-success ms-2" id="add-row">
+                            <i class="bi bi-plus-circle"></i> Add Another Item
+                        </button>
+                        
+                        <a href="{{ cancel_url }}" class="btn btn-outline-secondary ms-2">
                             <i class="bi bi-x-circle"></i> Cancel
                         </a>
                     </div>
-
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addBtn = document.getElementById('add-row');
+    const container = document.getElementById('formset-container');
+    const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+    const emptyFormDiv = document.getElementById('empty-form');
+
+    if (!addBtn || !container || !totalForms || !emptyFormDiv) {
+        console.error("Missing formset elements");
+        return;
+    }
+
+    let formCount = parseInt(totalForms.value || 0);
+
+    addBtn.addEventListener('click', function() {
+        const newHTML = emptyFormDiv.innerHTML.replace(/__prefix__/g, formCount);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newHTML;
+        const newRow = tempDiv.firstElementChild;
+
+        if (newRow) {
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-sm btn-outline-danger mt-3';
+            removeBtn.innerHTML = '<i class="bi bi-trash"></i> Remove';
+
+            removeBtn.onclick = function() {
+                if (confirm('Remove this item?')) {
+                    newRow.remove();
+                    formCount = Math.max(0, formCount - 1);
+                    totalForms.value = formCount;
+                }
+            };
+
+            newRow.appendChild(removeBtn);
+            container.appendChild(newRow);
+            formCount++;
+            totalForms.value = formCount;
+        }
+    });
+});
+</script>
+
 {% endblock %}

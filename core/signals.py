@@ -19,6 +19,7 @@ from .models import (
     ShopStockMovement,
     ShopStock,
     ShopSale,
+    ShopSaleItem,
     ShopDelivery,
     OldLayerSale,
     WorkerSalary,
@@ -190,8 +191,12 @@ def update_shop_stock_balance(sender, instance, created, **kwargs):
 
 # ── SHOP SALE ────────────────────────────────────────────────────
 
-@receiver(post_save, sender=ShopSale)
-def compute_shop_sale_totals(sender, instance, created, **kwargs):
+# ── SHOP SALE ITEM ───────────────────────────────────────────────
+
+@receiver(post_save, sender=ShopSaleItem)
+def compute_shop_sale_item_totals(sender, instance, created, **kwargs):
+    """Auto-compute price_per_unit, pricing_type, total_amount on ShopSaleItem.
+    Also handle initial delivery and update parent ShopSale total."""
     if created:
         pricing_type = 'wholesale' if instance.quantity >= instance.product.wholesale_threshold else 'retail'
         price_per_unit = instance.product.wholesale_price if pricing_type == 'wholesale' else instance.product.retail_price
@@ -208,24 +213,29 @@ def compute_shop_sale_totals(sender, instance, created, **kwargs):
             delivery_status = 'pending'
             quantity_delivered = 0
 
-        ShopSale.objects.filter(pk=instance.pk).update(
-            total_amount=total,
-            pricing_type=pricing_type,
+        ShopSaleItem.objects.filter(pk=instance.pk).update(
             price_per_unit=price_per_unit,
+            pricing_type=pricing_type,
+            total_amount=total,
             delivery_status=delivery_status,
             quantity_delivered=quantity_delivered
         )
 
-        # Only create delivery record for partial delivery
+        # Create initial delivery record for partial delivery
         if instance.quantity_delivered_at_sale > 0 and instance.quantity_delivered_at_sale < instance.quantity:
-            from .models import ShopDelivery
             ShopDelivery.objects.create(
-                sale=instance,
-                delivery_date=instance.sale_date,
+                sale_item=instance,
+                delivery_date=instance.sale.sale_date,
                 quantity_delivered=instance.quantity_delivered_at_sale,
-                delivered_by=instance.recorded_by,
+                delivered_by=instance.sale.recorded_by,
                 notes='Initial delivery at point of sale'
             )
+
+        # Update parent ShopSale total
+        from django.db.models import Sum
+        sale = instance.sale
+        new_total = sale.items.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        ShopSale.objects.filter(pk=sale.pk).update(total_amount=new_total)
 
 
 # ── OLD LAYER SALE ───────────────────────────────────────────────
@@ -245,25 +255,62 @@ def compute_net_salary(sender, instance, **kwargs):
     net = instance.basic_salary + instance.allowances - instance.deductions
     WorkerSalary.objects.filter(pk=instance.pk).update(net_salary=net)
 
-
 # ── SHOP DELIVERY ─────────────────────────────────────────────────
 
-@receiver(post_save, sender=ShopDelivery)
-def update_sale_delivery_status(sender, instance, **kwargs):
-    """Update ShopSale delivery_status and quantity_delivered when a delivery is recorded."""
-    from django.db.models import Sum
-    sale = instance.sale
-    total_delivered = sale.deliveries.aggregate(
-        Sum('quantity_delivered'))['quantity_delivered__sum'] or 0
+@receiver(post_save, sender=ShopSaleItem)
+def compute_shop_sale_item_totals(sender, instance, created, **kwargs):
+    if created:
+        pricing_type = 'wholesale' if instance.quantity >= instance.product.wholesale_threshold else 'retail'
+        price_per_unit = instance.product.wholesale_price if pricing_type == 'wholesale' else instance.product.retail_price
+        total = instance.quantity * price_per_unit
 
-    if total_delivered == 0:
-        status = 'pending'
-    elif total_delivered >= sale.quantity:
-        status = 'complete'
-    else:
-        status = 'partial'
+        if instance.quantity_delivered_at_sale >= instance.quantity:
+            delivery_status = 'complete'
+            quantity_delivered = instance.quantity
+        elif instance.quantity_delivered_at_sale > 0:
+            delivery_status = 'partial'
+            quantity_delivered = instance.quantity_delivered_at_sale
+        else:
+            delivery_status = 'pending'
+            quantity_delivered = 0
 
-    ShopSale.objects.filter(pk=sale.pk).update(
-        quantity_delivered=total_delivered,
-        delivery_status=status
-    )
+        ShopSaleItem.objects.filter(pk=instance.pk).update(
+            price_per_unit=price_per_unit,
+            pricing_type=pricing_type,
+            total_amount=total,
+            delivery_status=delivery_status,
+            quantity_delivered=quantity_delivered
+        )
+
+        # Create initial delivery record for partial delivery only
+        if 0 < instance.quantity_delivered_at_sale < instance.quantity:
+            ShopDelivery.objects.create(
+                sale_item=instance,
+                delivery_date=instance.sale.sale_date,
+                quantity_delivered=instance.quantity_delivered_at_sale,
+                delivered_by=instance.sale.recorded_by,
+                notes='Initial delivery at point of sale'
+            )
+
+        # Update parent ShopSale total AND delivery_status
+        from django.db.models import Sum
+        sale = instance.sale
+
+        new_total = sale.items.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+        # Re-read all item statuses from DB including the one just updated
+        all_statuses = list(
+            sale.items.exclude(pk=instance.pk).values_list('delivery_status', flat=True)
+        ) + [delivery_status]
+
+        if all(s == 'complete' for s in all_statuses):
+            sale_status = 'complete'
+        elif all(s == 'pending' for s in all_statuses):
+            sale_status = 'pending'
+        else:
+            sale_status = 'partial'
+
+        ShopSale.objects.filter(pk=sale.pk).update(
+            total_amount=new_total,
+            delivery_status=sale_status
+        )

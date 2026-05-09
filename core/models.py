@@ -1487,6 +1487,8 @@ class ShopProduct(models.Model):
     notes = models.TextField(blank=True)
 
     def __str__(self):
+        if self.product_type == 'egg' and self.egg_grade != 'not_applicable':
+            return f"Egg — {self.get_egg_grade_display()}"
         return f"{self.name} ({self.get_product_type_display()})"
 
 
@@ -1566,11 +1568,13 @@ class ShopSale(models.Model):
     ('complete', 'Complete'),
     ]
 
-    PRICING_TYPE_CHOICES = [    
-        ('wholesale', 'Wholesale'),
-        ('retail', 'Retail'),
-    ]
-
+    delivery_status = models.CharField(
+    max_length=20,
+    choices=DELIVERY_STATUS_CHOICES,
+    default='pending',
+    editable=False,
+    help_text="Auto-computed from all item delivery statuses"
+    )
     customer = models.ForeignKey(
         Customer,
         on_delete=models.PROTECT,
@@ -1585,30 +1589,12 @@ class ShopSale(models.Model):
         help_text="Name for walk-in customers not in the system"
     )
     sale_date = models.DateField()
-    product = models.ForeignKey(
-        ShopProduct,
-        on_delete=models.PROTECT,
-        related_name='sales'
-    )
-    quantity = models.DecimalField(max_digits=10, decimal_places=2)
-    quantity_delivered_at_sale = models.DecimalField(
-    max_digits=10,
-    decimal_places=2,
-    default=0,
-    help_text="How much was taken at point of sale"
-    )
-    pricing_type = models.CharField(
-        max_length=20,
-        choices=PRICING_TYPE_CHOICES,
-        editable=False
-    )
-    price_per_unit = models.DecimalField(max_digits=10, decimal_places=2,
-    editable=False, default=0)
     total_amount = models.DecimalField(
         max_digits=12,
         decimal_places=2,
         editable=False,
-        default=0
+        default=0,
+        help_text="Computed from all sale items"
     )
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
     payment_reference = models.CharField(
@@ -1616,18 +1602,6 @@ class ShopSale(models.Model):
         blank=True,
         help_text="Transfer reference or POS receipt number"
     )
-    delivery_status = models.CharField(
-        max_length=20,
-        choices=DELIVERY_STATUS_CHOICES,
-        default='pending',
-    )
-    quantity_delivered = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=0,
-        help_text='Auto computed from delivery records',
-    )
-    delivery_date = models.DateField(null=True, blank=True)
     recorded_by = models.ForeignKey(
         Worker,
         on_delete=models.PROTECT,
@@ -1638,11 +1612,74 @@ class ShopSale(models.Model):
 
     def __str__(self):
         customer = self.customer.name if self.customer else self.customer_name_walkin or "Walk-in"
-        return f"{customer} — {self.product.name} — {self.sale_date}"
+        return f"{customer} — {self.sale_date}"
 
-class ShopDelivery(models.Model):
+class ShopSaleItem(models.Model):
+    DELIVERY_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('partial', 'Partial'),
+        ('complete', 'Complete'),
+    ]
+
+    delivery_status = models.CharField(
+        max_length=20,
+        choices=DELIVERY_STATUS_CHOICES,
+        default='pending',
+        editable=False,
+        help_text="Auto-computed from all item delivery statuses"
+    )
     sale = models.ForeignKey(
         ShopSale,
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+    product = models.ForeignKey(
+        ShopProduct,
+        on_delete=models.PROTECT,
+        related_name='sale_items'
+    )
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    price_per_unit = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        editable=False,
+        default=0
+    )
+    pricing_type = models.CharField(
+        max_length=20,
+        editable=False,
+        default='wholesale'
+    )
+    total_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        editable=False,
+        default=0
+    )
+    quantity_delivered_at_sale = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text="How much was taken at point of sale"
+    )
+    quantity_delivered = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        editable=False
+    )
+
+    @property
+    def quantity_outstanding(self):
+        return self.quantity - self.quantity_delivered
+
+    def __str__(self):
+        return f"{self.product.name} x {self.quantity} — Sale #{self.sale.pk}"
+
+
+class ShopDelivery(models.Model):
+    sale_item = models.ForeignKey(
+        ShopSaleItem,
         on_delete=models.CASCADE,
         related_name='deliveries'
     )

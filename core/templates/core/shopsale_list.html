@@ -18,11 +18,9 @@
                     <tr>
                         <th>Date</th>
                         <th>Customer</th>
-                        <th>Product</th>
-                        <th>Quantity</th>
                         <th>Total</th>
                         <th>Payment</th>
-                        <th>Delivered</th>
+                        <th>Delivery</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -31,11 +29,9 @@
                     <tr>
                         <td>{{ sale.sale_date }}</td>
                         <td>{{ sale.customer.name|default:sale.customer_name_walkin|default:"Walk-in" }}</td>
-                        <td>{{ sale.product.name }}</td>
-                        <td>{{ sale.quantity }} {{ sale.product.unit }}</td>
                         <td>₦{{ sale.total_amount }}</td>
                         <td>{{ sale.get_payment_method_display }}</td>
-                       <td>
+                        <td>
                             {% if sale.delivery_status == 'complete' %}
                                 <span class="badge bg-success">Complete</span>
                             {% elif sale.delivery_status == 'partial' %}
@@ -51,7 +47,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-4">No sales recorded.</td>
+                        <td colspan="6" class="text-center text-muted py-4">No sales recorded.</td>
                     </tr>
                     {% endfor %}
                 </tbody>

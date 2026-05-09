@@ -42,14 +42,25 @@
 
     <hr>
 
+    {% for item in sale.items.all %}
     <div class="receipt-row">
-        <span>{{ sale.product.name }}</span>
+        <span><strong>{{ item.product.name }}</strong></span>
         <span></span>
     </div>
     <div class="receipt-row">
-        <span>{{ sale.quantity }} {{ sale.product.unit }} × ₦{{ sale.price_per_unit }}</span>
-        <span>₦{{ sale.total_amount }}</span>
+        <span>{{ item.quantity }} {{ item.product.unit }} × ₦{{ item.price_per_unit }}</span>
+        <span>₦{{ item.total_amount }}</span>
     </div>
+    {% if not forloop.last %}
+    <div class="receipt-row">
+        <span style="border-bottom: 1px dotted #ccc; width: 100%;"></span>
+    </div>
+    {% endif %}
+    {% empty %}
+    <div class="receipt-row">
+        <span class="text-muted small">No items recorded for this sale.</span>
+    </div>
+    {% endfor %}
 
     <div class="receipt-row receipt-total">
         <span>TOTAL</span>

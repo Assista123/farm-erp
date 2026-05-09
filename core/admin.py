@@ -305,10 +305,9 @@ class ShopStockMovementAdmin(admin.ModelAdmin):
 
 @admin.register(ShopSale)
 class ShopSaleAdmin(admin.ModelAdmin):
-    list_display = ['sale_date', 'customer', 'product', 'quantity',
-                    'total_amount', 'payment_method', 'delivery_status']
-    list_filter = ['sale_date', 'payment_method', 'delivery_status']
-    readonly_fields = ['total_amount', 'pricing_type']
+    list_display = ['sale_date', 'customer', 'total_amount', 'payment_method']
+    list_filter = ['sale_date', 'payment_method']
+    readonly_fields = ['total_amount']
 
 
 @admin.register(ShopOutflow)
@@ -334,4 +333,4 @@ class WorkerSalaryAdmin(admin.ModelAdmin):
 
 @admin.register(ShopDelivery)
 class ShopDeliveryAdmin(admin.ModelAdmin):
-    list_display = ['sale', 'delivery_date', 'quantity_delivered', 'delivered_by']
+    list_display = ['sale_item', 'delivery_date', 'quantity_delivered', 'delivered_by']
