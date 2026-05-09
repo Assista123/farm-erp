@@ -23,6 +23,7 @@ from .models import (
     ShopDelivery,
     OldLayerSale,
     WorkerSalary,
+    ShopProduct,
 )
 
 # ── FLOCK ────────────────────────────────────────────────────────────────────
@@ -259,6 +260,8 @@ def compute_net_salary(sender, instance, **kwargs):
 
 @receiver(post_save, sender=ShopSaleItem)
 def compute_shop_sale_item_totals(sender, instance, created, **kwargs):
+    """Auto-compute price_per_unit, pricing_type, total_amount on ShopSaleItem.
+    Also handle initial delivery, update parent ShopSale total and reduce shop stock."""
     if created:
         pricing_type = 'wholesale' if instance.quantity >= instance.product.wholesale_threshold else 'retail'
         price_per_unit = instance.product.wholesale_price if pricing_type == 'wholesale' else instance.product.retail_price
@@ -292,13 +295,26 @@ def compute_shop_sale_item_totals(sender, instance, created, **kwargs):
                 notes='Initial delivery at point of sale'
             )
 
+        # Auto-reduce shop stock on sale
+        try:
+            shop_stock = ShopStock.objects.get(product=instance.product)
+            ShopStockMovement.objects.create(
+                shop_stock=shop_stock,
+                movement_type='out',
+                movement_reason='sale',
+                quantity=instance.quantity,
+                recorded_by=instance.sale.recorded_by,
+                notes=f'Auto: Sale #{instance.sale.pk}'
+            )
+        except ShopStock.DoesNotExist:
+            pass
+
         # Update parent ShopSale total AND delivery_status
         from django.db.models import Sum
         sale = instance.sale
 
         new_total = sale.items.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
 
-        # Re-read all item statuses from DB including the one just updated
         all_statuses = list(
             sale.items.exclude(pk=instance.pk).values_list('delivery_status', flat=True)
         ) + [delivery_status]
@@ -313,4 +329,16 @@ def compute_shop_sale_item_totals(sender, instance, created, **kwargs):
         ShopSale.objects.filter(pk=sale.pk).update(
             total_amount=new_total,
             delivery_status=sale_status
+        )
+
+# ── SHOP PRODUCT ─────────────────────────────────────────────────
+from .models import ShopProduct
+
+@receiver(post_save, sender=ShopProduct)
+def create_shop_stock_for_product(sender, instance, created, **kwargs):
+    """Auto-create a ShopStock record when a new ShopProduct is created."""
+    if created:
+        ShopStock.objects.get_or_create(
+            product=instance,
+            defaults={'current_quantity': 0}
         )
