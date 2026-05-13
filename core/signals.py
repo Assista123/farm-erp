@@ -172,7 +172,6 @@ def compute_manure_total_revenue(sender, instance, **kwargs):
 
 @receiver(post_save, sender=ShopStockMovement)
 def update_shop_stock_balance(sender, instance, created, **kwargs):
-    """When a shop stock movement is created, update ShopStock current_quantity."""
     if created:
         stock = instance.shop_stock
         if instance.movement_type == 'in':
@@ -185,10 +184,15 @@ def update_shop_stock_balance(sender, instance, created, **kwargs):
         ShopStockMovement.objects.filter(pk=instance.pk).update(
             balance_after=new_balance
         )
-        ShopStock.objects.filter(pk=stock.pk).update(
-            current_quantity=new_balance
-        )
 
+        update_fields = {'current_quantity': new_balance}
+
+        # Mirror batch info from latest stock-in
+        if instance.movement_type == 'in':
+            update_fields['current_batch_number'] = instance.batch_number or ''
+            update_fields['current_expiry_date'] = instance.expiry_date
+
+        ShopStock.objects.filter(pk=stock.pk).update(**update_fields)
 
 # ── SHOP SALE ────────────────────────────────────────────────────
 

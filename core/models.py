@@ -1469,6 +1469,12 @@ class ShopProduct(models.Model):
         max_length=50,
         help_text="e.g. crate, bag, bottle, sachet"
     )
+    cost_price = models.DecimalField(
+    max_digits=10,
+    decimal_places=2,
+    default=0,
+    help_text="Cost price per unit for profit calculation"
+    )
     wholesale_price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -1510,6 +1516,8 @@ class ShopStock(models.Model):
         default=0
     )
     last_updated = models.DateTimeField(auto_now=True)
+    current_batch_number = models.CharField(max_length=100, blank=True)
+    current_expiry_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.product.name} — {self.current_quantity} {self.product.unit}"
@@ -1550,6 +1558,22 @@ class ShopStockMovement(models.Model):
     )
     recorded_at = models.DateTimeField(auto_now_add=True)
     notes = models.TextField(blank=True)
+
+    batch_number = models.CharField(
+    max_length=100,
+    blank=True,
+    help_text="Batch number for stock-in movements"
+    )
+    manufacture_date = models.DateField(
+    null=True,
+    blank=True,
+    help_text="Manufacture date for stock-in movements"
+    )
+    expiry_date = models.DateField(
+    null=True,
+    blank=True,
+    help_text="Expiry date for stock-in movements"
+    )
 
     def __str__(self):
         return f"{self.get_movement_type_display()} — {self.product.name} — {self.quantity}"
@@ -1667,6 +1691,19 @@ class ShopSaleItem(models.Model):
         decimal_places=2,
         default=0,
         editable=False
+    )
+
+    cost_price_per_unit = models.DecimalField(
+    max_digits=10,
+    decimal_places=2,
+    editable=False,
+    default=0
+    )
+    profit_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        editable=False,
+        default=0
     )
 
     @property

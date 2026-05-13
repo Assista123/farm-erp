@@ -158,8 +158,27 @@ class ShopStockMovementForm(forms.ModelForm):
     class Meta:
         model = ShopStockMovement
         fields = ['shop_stock', 'movement_type', 'movement_reason',
-                  'quantity', 'recorded_by', 'notes']
+                  'quantity', 'recorded_by', 'notes',
+                  'batch_number', 'manufacture_date', 'expiry_date']
+        widgets = {
+            'manufacture_date': forms.DateInput(attrs={'type': 'date'}),
+            'expiry_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        movement_type = cleaned_data.get('movement_type')
+        expiry_date = cleaned_data.get('expiry_date')
+        manufacture_date = cleaned_data.get('manufacture_date')
+
+        if movement_type == 'in':
+            if manufacture_date and expiry_date:
+                if expiry_date <= manufacture_date:
+                    raise forms.ValidationError(
+                        "Expiry date must be after manufacture date."
+                    )
+        return cleaned_data
+        
 class ShopSaleForm(forms.ModelForm):
     class Meta:
         model = ShopSale
