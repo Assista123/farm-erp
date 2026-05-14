@@ -1567,26 +1567,24 @@ class ShopStockMovement(models.Model):
     )
     recorded_at = models.DateTimeField(auto_now_add=True)
     notes = models.TextField(blank=True)
-
     batch_number = models.CharField(
-    max_length=100,
-    blank=True,
-    help_text="Batch number for stock-in movements"
+        max_length=100,
+        blank=True,
+        help_text="Batch number for stock-in movements"
     )
     manufacture_date = models.DateField(
-    null=True,
-    blank=True,
-    help_text="Manufacture date for stock-in movements"
+        null=True,
+        blank=True,
+        help_text="Manufacture date for stock-in movements"
     )
     expiry_date = models.DateField(
-    null=True,
-    blank=True,
-    help_text="Expiry date for stock-in movements"
+        null=True,
+        blank=True,
+        help_text="Expiry date for stock-in movements"
     )
 
     def __str__(self):
-        return f"{self.get_movement_type_display()} — {self.product.name} — {self.quantity}"
-
+        return f"{self.get_movement_type_display()} — {self.shop_stock.product.name} — {self.quantity}"
 
 class ShopSale(models.Model):
     PAYMENT_METHOD_CHOICES = [
