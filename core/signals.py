@@ -187,7 +187,6 @@ def update_shop_stock_balance(sender, instance, created, **kwargs):
 
         update_fields = {'current_quantity': new_balance}
 
-        # Mirror batch info from latest stock-in
         if instance.movement_type == 'in':
             update_fields['current_batch_number'] = instance.batch_number or ''
             update_fields['current_expiry_date'] = instance.expiry_date
@@ -346,3 +345,10 @@ def create_shop_stock_for_product(sender, instance, created, **kwargs):
             product=instance,
             defaults={'current_quantity': 0}
         )
+
+from django.db.models.signals import post_save, post_delete
+
+@receiver(post_delete, sender=ShopStockMovement)
+def recalculate_shop_stock_on_delete(sender, instance, **kwargs):
+    """Recalculate ShopStock balance when a movement is deleted."""
+    instance.shop_stock.recalculate_balance()

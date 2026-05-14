@@ -1519,6 +1519,15 @@ class ShopStock(models.Model):
     current_batch_number = models.CharField(max_length=100, blank=True)
     current_expiry_date = models.DateField(null=True, blank=True)
 
+    def recalculate_balance(self):
+    from django.db.models import Sum
+    total_in = self.movements.filter(movement_type='in').aggregate(
+        Sum('quantity'))['quantity__sum'] or 0
+    total_out = self.movements.filter(movement_type='out').aggregate(
+        Sum('quantity'))['quantity__sum'] or 0
+    new_balance = max(total_in - total_out, 0)
+    ShopStock.objects.filter(pk=self.pk).update(current_quantity=new_balance)
+    
     def __str__(self):
         return f"{self.product.name} — {self.current_quantity} {self.product.unit}"
 
