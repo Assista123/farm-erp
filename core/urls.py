@@ -164,7 +164,8 @@ urlpatterns = [
     # Shop Outflow
     path('shop/outflows/', views.ShopOutflowListView.as_view(), name='shopoutflow-list'),
     path('shop/outflows/add/', views.ShopOutflowCreateView.as_view(), name='shopoutflow-create'),
-
+    path('shop/stock/export/expiry/', views.shop_stock_expiry_export, name='shopstock-expiry-export'),
+    
     # Old Layer Sales
     path('farm/layer-sales/', views.OldLayerSaleListView.as_view(), name='oldlayersale-list'),
     path('farm/layer-sales/add/', views.OldLayerSaleCreateView.as_view(), name='oldlayersale-create'),

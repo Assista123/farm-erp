@@ -5,9 +5,14 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4>Shop Stock</h4>
-    <a href="{% url 'shopstockmovement-create' %}" class="btn btn-success">
-        <i class="bi bi-plus-circle"></i> Record Stock Movement
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{% url 'shopstock-expiry-export' %}" class="btn btn-outline-success">
+            <i class="bi bi-download"></i> Export Expiry Report
+        </a>
+        <a href="{% url 'shopstockmovement-create' %}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Record Stock Movement
+        </a>
+    </div>
 </div>
 
 <div class="card">
@@ -19,6 +24,8 @@
                         <th>Product</th>
                         <th>Current Stock</th>
                         <th>Unit</th>
+                        <th>Batch No</th>
+                        <th>Expiry Date</th>
                         <th>Reorder Threshold</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -30,6 +37,8 @@
                         <td>{{ stock.product.name }}</td>
                         <td>{{ stock.current_quantity }}</td>
                         <td>{{ stock.product.unit }}</td>
+                        <td>{{ stock.current_batch_number|default:"—" }}</td>
+                        <td>{{ stock.current_expiry_date|default:"—" }}</td>
                         <td>{{ stock.reorder_threshold }}</td>
                         <td>
                             {% if stock.current_quantity <= stock.reorder_threshold %}
@@ -44,7 +53,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">No stock records found.</td>
+                        <td colspan="8" class="text-center text-muted py-4">No stock records found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>

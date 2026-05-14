@@ -1621,6 +1621,28 @@ class ShopStockListView(LoginRequiredMixin, ListView):
     template_name = 'core/shopstock_list.html'
     context_object_name = 'stocks'
 
+import csv
+from django.http import HttpResponse
+
+@login_required
+def shop_stock_expiry_export(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="shop_stock_expiry.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Product', 'Current Quantity', 'Unit', 'Batch Number', 'Expiry Date'])
+
+    stocks = ShopStock.objects.select_related('product').order_by('current_expiry_date')
+    for stock in stocks:
+        writer.writerow([
+            stock.product.name,
+            stock.current_quantity,
+            stock.product.unit,
+            stock.current_batch_number or '—',
+            stock.current_expiry_date or '—',
+        ])
+
+    return response
 
 class ShopStockDetailView(LoginRequiredMixin, DetailView):
     model = ShopStock
